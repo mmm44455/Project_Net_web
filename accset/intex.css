@@ -1,0 +1,56 @@
+﻿*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+html {
+    font-family: "Raleway", sans-serif;
+}
+.logo {
+    display: flex;
+    align-items: center;
+   
+}
+nav {
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #FFCC33;
+}
+
+
+img{
+
+    width:50px;
+    height:50px;
+    border-radius: 50%;
+}
+.slider {
+    height: 600px;
+    background-image: url(/icon/img/z4857424446438_d1b1f8ed655d447795a80a7ae12ecdcb.jpg);
+    background-repeat:no-repeat;
+    background-size: 100% 100%;
+}
+.icon {
+    padding: 30px 0 30px 0;
+    text-align: center;
+    background-color:black;
+    color:white;
+
+}
+
+.link {
+    color: white;
+    font-size: 20px;
+    padding: 10px;
+}
+    .link:hover {
+        color:black;
+        background-color: DarkGray;
+    }
+
+tr.selected {
+    background-color: red; /* Màu nền bạn muốn áp dụng khi dòng được chọn */
+    color: white; /* Màu chữ cho dòng được chọn */
+}
