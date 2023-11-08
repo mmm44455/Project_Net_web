@@ -1,14 +1,14 @@
 ﻿$(document).ready(function () {
     const api = '/api.aspx';
-   function list_hoatdong() {
+
+
+
+   function list_hoatdong(mssv) {
         var dialog_list_company = $.confirm({
             title: "Danh sach hoat dong",
             content: `<div id="ds_cong_ty">loading...</div>`,
             columnClass: 'large',
             buttons: {
-                add: {
-                 
-                },
                 close: {
 
                 }
@@ -16,46 +16,47 @@
             onContentReady: function () {
                 $.post(api,
                     {
-                        action: 'list_hoatdong'
+                        action: 'list_ngoaikhoa',
+                        mssv: mssv
+
                     },
                     function (data) {
-                    
-                        var json = JSON.parse(data); //txt trong data -> obj json
-                        console.log(json);
+                         console.log(data);
+                        var json = JSON.parse(data);
+                      
+                       
                         var noidung_ds_cty_html = "";
                         if (json.ok) {
                             noidung_ds_cty_html += `<table class="table table-striped">
               <thead class="table table-dark">
               <tr>
               <th>STT</th>
-                <th>MaHd</th>
-                <th>Ten Hd</th>
-                <th>Mo ta</th>
-                <th>Dia diem</th>
-                <th>diem</th>
+                <th>MaHD</th>
+                <th>HO TEN</th>
+                <th>TEN HD</th>
+                <th>TINH TRANG QUET</th>
+                <th>NGAY QUET</th>
+                <th>DIEM</th>
               </tr>
               </thead><tbody>`;
                             var Stt = 1;
                             //duyet json -> noidung_ds_cty_html xịn
                             for (var hd of json.data) {
-
-                                //sua_xoa là 2 nút: mỗi nút kèm theo data để sau này phân loại: là data-cid  và data-action
-
-
+                                var daquet = hd.daquet ==1 ? "Quét điểm thành công" : "Bạn chưa được quét điểm";                  
                                 noidung_ds_cty_html += `
                 <tr >
                  <td>${Stt++}</td>
-                <td>${hd.MaHd}</td>
+                <td>${hd.MaHD}</td>
+                <td>${hd.hoten}</td>
                 <td>${hd.tenhd}</td>
-                <td>${hd.mota}</td>
-                 <td>${hd.diachi}</td>
+                 <td>${daquet}</td>
+                  <td>${hd.ngayquet}</td>
                 <td>${hd.diem}</td>
               
-  
               </tr>`;
                             }
 
-                            noidung_ds_cty_html += "</tbody></table>";
+                       noidung_ds_cty_html += "</tbody></table>";
                         } else {
 
                             noidung_ds_cty_html = "không có dữ liệu";
@@ -73,10 +74,9 @@
                 action: 'list_company'
             },
             function (data) {
-
                 //alert(data)
+                console.log(data);
                 var json = JSON.parse(data); 
-                console.log(data); // In dữ liệu t
                 var noidung_ds_cty_html = "";
                 if (json.ok) {
                     noidung_ds_cty_html += `<table class="table table-striped">
@@ -97,8 +97,8 @@
                     for (var sv of json.data) {
 
                         //sua_xoa là 2 nút: mỗi nút kèm theo data để sau này phân loại: là data-cid  và data-action
-                        var tinhtrangChuoi = sv.tinhtrang === 1 ? "Khong hoc nua" : "Đang theo học";
-                        var list_hoat_dong = `<button class="btn btn-sm btn-warning "  data-cid="${sv.MSSV}"data-action="list_hoatdong">Xuất hoạt động </button>`;
+                        var tinhtrangChuoi = sv.tinhtrang == 1 ? "Khong hoc nua" : "Đang theo học";
+                        var list_hoat_dong = `<button class="btn btn-sm btn-warning "  data-mssv="${sv.MSSV}"data-action="list_hoatdong">Xuất hoạt động </button>`;
                         noidung_ds_cty_html += `
                 <tr>
                  <td>${Stt++}</td>
@@ -111,7 +111,6 @@
                 <td>${list_hoat_dong}</td>
               </tr>`;
                     }
-
                     noidung_ds_cty_html += "</tbody></table>";
                 } else {
 
@@ -120,17 +119,15 @@
                
                 $('#ds_sinhvien').html(noidung_ds_cty_html); //gán html vào thân dialog
                 $('#ds_sinhvien button[data-action="list_hoatdong"]').click(function () {
-                    list_hoatdong();
+                    var mssv = $(this).data('mssv');
+                    list_hoatdong(mssv);
                 });
                
 
             });
     }
 
- 
-
-
     $('#btn-list').click(function () {
-        list_company();
-    });
+        list_company();    });
+
 });
