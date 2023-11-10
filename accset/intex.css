@@ -54,3 +54,6 @@ tr.selected {
     background-color: red; /* Màu nền bạn muốn áp dụng khi dòng được chọn */
     color: white; /* Màu chữ cho dòng được chọn */
 }
+.main{
+    padding-top:50px;
+}

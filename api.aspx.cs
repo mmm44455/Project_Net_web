@@ -22,11 +22,11 @@ namespace QLNK_NET
 
             }
 
-        void xuly_thamgia(string action,string mssv)
+        void xuly_thamgia(string action)
         {
             SqlServer db = new SqlServer();
             SqlCommand hd = db.GetCmd("Laydiemngoaikhoa", action);
-            hd.Parameters.Add("@MSSV", SqlDbType.NVarChar, 50).Value = mssv;
+            hd.Parameters.Add("@MSSV", SqlDbType.NVarChar, 50).Value = Request["mssv"];
           
 
             string json = (string)db.Scalar(hd); //thuc thi SqlCommand cm này để thu về jsonhd
@@ -46,7 +46,6 @@ namespace QLNK_NET
         protected void Page_Load(object sender, EventArgs e)
         {
             string action = Request["action"];
-            string mssv = Request["mssv"];
             switch (action)
             { 
                
@@ -56,7 +55,7 @@ namespace QLNK_NET
 
 
                 case "list_ngoaikhoa":
-                    xuly_thamgia(action, mssv);
+                    xuly_thamgia(action);
                         break;
 
                 case "list_ngayquet":
