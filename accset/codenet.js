@@ -1,15 +1,20 @@
 ﻿$(document).ready(function () {
     const api = '/api.aspx';
-
+    let dialogClosed = false;
    /* Tim hoat dong da quet theo thoi gian*/
     function list_search_ngay(mssv) {
+        originalConfirm = $.confirm;
         var dialog_list_ngay = $.confirm({
-            title: "Nhap thoi gian ",
-            content: `Ngay dau :  <input type="date" name="name"  id="ngay_dau" /><br>` +
-                `Ngay cuoi :  <input type="date" name="name"  id="ngay_cuoi" />`,
-            columnClass: 'large',
+            title: "Nhập  thời gian ",
+            content: `Ngày đầu :  <input type="date" name="name"  id="ngay_dau" style=" margin: 0 10px 10px; padding: 0 10px;" /><br>` +
+                `Ngày cuối :  <input type="date" name="name"  id="ngay_cuoi" style=" margin: 0 10px 10px; padding: 0 10px;" />`+
+                    `<div id="hoten"></div>` +
+                `<div id="tongdiem"></div>`,   
+            columnClass: 'small',
             buttons: {
-                Gui: {
+                Gửi: {
+                    text:'<i class="fa-regular fa-paper-plane"></i> Gửi đi ',
+                    btnClass: 'btn-blue',
                     action: function () {
                         var ngay_bat_dau = $('#ngay_dau').val();
                         var ngay_ket_thuc = $('#ngay_cuoi').val();
@@ -23,46 +28,36 @@
                             console.log(data);
                             var json = JSON.parse(data);
                             if (json.ok) {
-                                dialog_list_ngay.close(); 
-                                var dialog_list_company = $.confirm({
-                                    title: "Tong diem",
-                                    content:  
-                                        `<div id="tongdiem">Tong diem theo thang/div>`,
-                                    columnClass: 'large',
-                                    buttons: {
-                                        close: {
-
-                                        }
-                                    },
-                                    onContentReady: function () {
+    
                                         var tongDiem = 0;
                                         for (var hd of json.data) {
                                             if (hd.daquet == 1) {
-                                                // Nếu đã quét điểm, cộng điểm vào tổng
                                                 tongDiem = tongDiem + parseInt(hd.diem);
                                             }
                                         }
-                                        $('#tongdiem').html("Tong diem: " + (tongDiem));
-                                    }
-
-                                });
+                                $('#hoten').html(` Tên  : ${ hd.hoten }`);
+                                $('#tongdiem').html(` Tổng điểm  : ${tongDiem}`);
+                            
 
                             } else {
                                 alert(json.msg);
+                             
                             }
                         });
-
+                        return false;
                     }
                 },
-
-                Dong: {
-
+                Close: {
+                    text: '<i class="fa-solid fa-rotate-left"></i> Trở về ',
+                    btnClass: 'btn-red',
+                    action: function () {
+                        list_hoatdong(mssv)
+                    }
                 }
-
-            }
-
-
+            },
+            
         });
+       
     }
 
   /*  Danh sach cac hoat dong da quet va tong diem */
@@ -74,17 +69,22 @@
             columnClass: 'large',
             buttons: {
                 search: {
-                    text: 'Tìm kiếm',
+                    text: '<i class="fa-solid fa-magnifying-glass"></i> Tìm kiếm ',
+                    btnClass: 'btn-blue', 
                     action: function () {
                         list_search_ngay(mssv);
+                        dialogClosed = true;
                     }
 
                 },
 
                 close: {
-
-                }
+                    text: '<i class="fa-solid fa-xmark"></i> Đóng',
+                    btnClass: 'btn-danger',
+                },
+               
             },
+           
             onContentReady: function () {
                 $.post(api,
                     {
@@ -99,6 +99,7 @@
 
                         var noidung_ds_cty_html = "";
                         if (json.ok) {
+                            dialog_list_company.open();
                             noidung_ds_cty_html += `<table class="table table-striped">
               <thead class="table table-dark">
               <tr>
@@ -144,26 +145,26 @@
                         }
                         $('#ds_cong_ty').html(noidung_ds_cty_html);
                         $('#tongdiem').html("Tong diem: " + (tongDiem));
+                      
                     }
                 )
+              
             }
-
+            
         });
     }
 
   /*  Danh sach sinh vien co trong database*/
-    function list_company() {
+    function list_sinhvien() {
         $.post(api,
             {
-                action: 'list_company'
+                action: 'list_sinhvien'
             },
             function (data) {
                 //alert(data)
                 console.log(data);
                 var json = JSON.parse(data);
                 var noidung_ds_cty_html = "";
-
-
                 if (json.ok) {
                     noidung_ds_cty_html += `<table class="table table-striped">
               <thead class="table table-dark">
@@ -189,7 +190,7 @@
 
 
                         var sua = `<button class="btn btn-sm btn-warning nut_xoa_sua "  data-id="${sv.MSSV}" data-loai="list_sua" style="margin-right:10px;">Sửa</button>`;
-                            sua += `<button class="btn btn btn-danger "  data-mssv="${sv.MSSV}"  data-loai="list_xoa">Xóa</button>`;
+                        sua += `<button class="btn btn btn-danger nut_xoa_sua "  data-id="${sv.MSSV}"  data-loai="list_xoa">Xóa</button>`;
                         noidung_ds_cty_html += `
                 <tr>
                  <td>${Stt++}</td>
@@ -237,7 +238,7 @@
                 search: {
                     text: 'Dang nhap',
                     action: function () {
-                       
+                            
                     }
 
                 },
@@ -255,8 +256,8 @@
     }
        
 
-    $('#btn-list').click(function () {
-        list_company();
+    $('#sinhvien').html(function () {
+        list_sinhvien();
     });
 
     $('#btn-login').click(function () {

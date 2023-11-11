@@ -12,26 +12,27 @@ namespace QLNK_NET
 {
     public partial class api : System.Web.UI.Page
     {  
+        // Lay thong tin sinh vien tu data base co proceduce la thong tin sinh vien co action = list_company
         void xuly_thongtin(string action)
             {
                 SqlServer db = new SqlServer();
                 SqlCommand cm = db.GetCmd("Thongtinsv", action);
 
               string json = (string)db.Scalar(cm); //thuc thi SqlCommand cm này để thu về jsonhd
-                     Response.Write(json);
+               Response.Write(json);
 
             }
-
+        // Lay thong tin diem ngoai khoa tu data base co proceduce la Laydiemngoaikhoa co action = list_ngpaikhoa
         void xuly_thamgia(string action)
         {
             SqlServer db = new SqlServer();
             SqlCommand hd = db.GetCmd("Laydiemngoaikhoa", action);
             hd.Parameters.Add("@MSSV", SqlDbType.NVarChar, 50).Value = Request["mssv"];
-          
-
             string json = (string)db.Scalar(hd); //thuc thi SqlCommand cm này để thu về jsonhd
             Response.Write(json);
         }
+
+        //Lay tong diem da quat theo ngay tu data base co proceduce la Laydiemngoaikhoa co action = list_ngayquet
         void xuly_ngay(string action)
         {
             SqlServer db = new SqlServer();
@@ -49,7 +50,7 @@ namespace QLNK_NET
             switch (action)
             { 
                
-                case "list_company":
+                case "list_sinhvien":
                     xuly_thongtin(action);
                     break;
 
