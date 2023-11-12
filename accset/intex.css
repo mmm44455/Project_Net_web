@@ -12,11 +12,13 @@ html {
    
 }
 nav {
+        width:100%;
     height: 70px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background-color: #FFCC33;
+    background-color: rgba(120,20,30,0.5); 
+    position:fixed;
 }
 
 
@@ -57,3 +59,26 @@ tr.selected {
 .main{
     padding-top:50px;
 }
+.custom-input{
+    width: 100%;
+    margin-top:10px;
+    font-size:15px;
+    border-radius : 5px;
+    padding: 10px;
+}
+.icon-fa{
+    margin-top:10px;
+    font-size: 20px;
+    width:30px;
+}
+.confirm-login{
+    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    background-color:aliceblue;
+    border-radius: 20px;
+   
+}
+
+.btn_update {
+    margin-bottom: 10px;
+}
+   
