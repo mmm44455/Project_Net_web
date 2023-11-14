@@ -101,6 +101,17 @@ namespace QLNK_NET
             string json = (string)db.Scalar(cm); //thuc thi SqlCommand cm này để thu về jsonhd
             Response.Write(json);
         }
+
+        void update_ms(string action)
+        {
+            SqlServer db = new SqlServer();
+            SqlCommand cm = db.GetCmd("Thongtinsv", action);
+            cm.Parameters.Add("@NewMSSV", SqlDbType.NVarChar, 50).Value = Request["newMSSV"];
+            cm.Parameters.Add("@MSSV", SqlDbType.NVarChar, 30).Value = Request["mssv"];
+            string json = (string)db.Scalar(cm); //thuc thi SqlCommand cm này để thu về jsonhd
+            Response.Write(json);
+
+        }
         protected void Page_Load(object sender, EventArgs e)
         {
             string action = Request["action"];
@@ -127,6 +138,10 @@ namespace QLNK_NET
                 //Danh sach hoat dong
                 case "list_hoatdong":
                     Xulyhoatdong(action); 
+                    break;
+                // update Mssv
+                case "update_mssv":
+                    update_ms(action); 
                     break;
             }
         }

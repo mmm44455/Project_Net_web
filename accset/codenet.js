@@ -185,7 +185,7 @@
                             matkhau: $('#edit-pass').val()
                         }
 
-                        $.post(api, data_gui, function () {
+                        $.post(api, data_gui, function (data) {
                             var json = JSON.parse(data);
                             if (json.ok) {
                                 list_sinhvien();
@@ -195,6 +195,8 @@
                         })
                     }
                 }
+
+
             }
         })
 
@@ -301,6 +303,58 @@
             }
         });
     }
+
+    /*Sua MSSV*/
+    function list_update_mssv(mssv) {
+        var dialog_list_mssv = $.confirm({
+            title: "MSSV cần sửa là : ",
+            content: `MSSV cũ : <input type = text id="mssv_cu" value="${mssv}" /><br>` +
+                `MSSV mới: <input type = text id="mssv_moi" />`,
+            columnClass: 'small',
+            buttons: {
+                search: {
+                    text: '<i class="fa-solid fa-magnifying-glass"></i> Sửa',
+                    btnClass: 'btn-blue',
+                    action: function () {
+                        var data_mssv = {
+                            action: 'update_mssv',
+                            mssv: mssv,
+                            newMSSV: $('#mssv_moi').val()
+                        };
+
+                        $.post(api, data_mssv)
+                            .done(function (data) {
+                                console.log("Dữ liệu phản hồi:", data);
+                                try {
+                                    var json = JSON.parse(data);
+                                    console.log(json);
+
+                                    if (json.ok) {
+                                        list_sinhvien();
+                                    } else {
+                                        alert(json.msg);
+                                    }
+                                } catch (error) {
+                                    console.error("Lỗi phân tích cú pháp JSON:", error);
+                                    alert("Có lỗi xảy ra trong quá trình xử lý phản hồi.");
+                                }
+                            })
+                            .fail(function (xhr, textStatus, errorThrown) {
+                                console.error("Lỗi AJAX:", textStatus, errorThrown);
+                                alert("Có lỗi xảy ra trong quá trình gửi yêu cầu.");
+                            });
+                    }
+                },
+
+                close: {
+                    text: '<i class="fa-solid fa-xmark"></i> Đóng',
+                    btnClass: 'btn-danger',
+                },
+            },
+        });
+    }
+
+
   /*Danh sach sinh vien co trong database*/
     function list_sinhvien() {
         $.post(api,
@@ -315,7 +369,7 @@
                 if (json.ok) {
                     noidung_ds_cty_html += `
                     <button class="btn btn-outline-info add_sinhvien " data-action="list_add_sinhvien" style="margin-bottom:10px;"><i class="fa-solid fa-plus"></i> Thêm sinh viên mới</button>
-                     <button class="btn btn-outline-success update_mssv " data-action="list_update_mssv" style="margin-bottom:10px;"><i class="fa-solid fa-square-pen"></i> Sửa MSSV  </button>
+                     <button class="btn btn-outline-info restart " data-action="list_add_sinhvien" style="margin-bottom:10px;"><i class="fa-solid fa-plus"></i> Reratrt</button>
                <table class="table table-striped table-responsive-lg">
               <thead class="table table-dark">
               <tr>
@@ -341,6 +395,7 @@
 
                         var sua = `<button class="btn btn-sm btn-warning nut_xoa_sua "  data-id="${sv.MSSV}" data-loai="list_sua" style="margin-right:10px;"> <i class="fa-solid fa-pen"></i> Sửa</button>`;
                         sua += `<button class="btn btn-sm btn-danger nut_xoa_sua "  data-id="${sv.MSSV}"  data-loai="list_xoa"><i class="fa-solid fa-trash"></i> Xóa</button>`;
+                        sua += `<button class="btn btn-outline-success update_mssv " data-action="list_update_mssv" data-id="${sv.MSSV}" style="margin-left:10px;"><i class="fa-solid fa-square-pen"></i> Sửa MSSV  </button>`
                         noidung_ds_cty_html += `
                 <tr>
                  <td>${Stt++}</td>
@@ -381,6 +436,13 @@
 
                 $('.add_sinhvien ').click(function () {
                     add_sinhvien();
+                })
+                $('.restart ').click(function () {
+                    list_sinhvien();
+                })
+                $('.update_mssv ').click(function () {
+                    var mssv = $(this).data('id');
+                    list_update_mssv(mssv);
                 })
             });
     }
