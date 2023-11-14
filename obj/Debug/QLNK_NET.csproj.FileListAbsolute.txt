@@ -1,0 +1,7 @@
+D:\Dev C++\lập trình trong window\QLNK_NET\QLNK_NET\bin\QLNK_NET.dll.config
+D:\Dev C++\lập trình trong window\QLNK_NET\QLNK_NET\bin\QLNK_NET.dll
+D:\Dev C++\lập trình trong window\QLNK_NET\QLNK_NET\bin\QLNK_NET.pdb
+D:\Dev C++\lập trình trong window\QLNK_NET\QLNK_NET\obj\Debug\QLNK_NET.csproj.AssemblyReference.cache
+D:\Dev C++\lập trình trong window\QLNK_NET\QLNK_NET\obj\Debug\QLNK_NET.csproj.CoreCompileInputs.cache
+D:\Dev C++\lập trình trong window\QLNK_NET\QLNK_NET\obj\Debug\QLNK_NET.dll
+D:\Dev C++\lập trình trong window\QLNK_NET\QLNK_NET\obj\Debug\QLNK_NET.pdb
