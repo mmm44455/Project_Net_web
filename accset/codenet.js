@@ -245,7 +245,7 @@
                 }
             }
         })
-    }
+    }  
 
     /* Them 1 sinh vien moi */
     function add_sinhvien() {
@@ -354,7 +354,6 @@
         });
     }
 
-
   /*Danh sach sinh vien co trong database*/
     function list_sinhvien() {
         $.post(api,
@@ -369,7 +368,7 @@
                 if (json.ok) {
                     noidung_ds_cty_html += `
                     <button class="btn btn-outline-info add_sinhvien " data-action="list_add_sinhvien" style="margin-bottom:10px;"><i class="fa-solid fa-plus"></i> Thêm sinh viên mới</button>
-                     <button class="btn btn-outline-info restart " data-action="list_add_sinhvien" style="margin-bottom:10px;"><i class="fa-solid fa-plus"></i> Reratrt</button>
+                     <button class="btn btn-outline-success restart" data-action="list_add_sinhvien" style="margin-bottom:10px;"><i class="fa-solid fa-rotate-right"></i> Reratrt</button>
                <table class="table table-striped table-responsive-lg">
               <thead class="table table-dark">
               <tr>
@@ -505,7 +504,7 @@
                  <th>MO TA</th> 
                  <th>TO CHUC</th>
                   <th>SO LUONG</th>
-                     <th>THANH VIEN THAM GIA</th>
+                
                   <th>Sua/xoa</th>
               </tr>
               </thead><tbody>`;
@@ -528,7 +527,7 @@
                 <td>${sv.mota}</td>
                 <td>${sv.tochuc}</td>
                   <td>${sv.soluong}</td>
-                 <td>${sv.thanhvien}</td>
+               
                 <td>${sua}</td>
               </tr>`;
                     }
@@ -563,7 +562,68 @@
             });
     }
 
-    /*   Lua chon danh sach kieu gi*/
+    /*    danh sach dang ki*/
+    function list_dangki() {
+        $.post(api,
+            {
+                action: 'dangki'
+            },
+            function (data) {
+                //alert(data)
+                console.log("Raw JSON data:", data);
+
+                var json = JSON.parse(data);
+                var noidung_ds_cty_html = "";
+                if (json.ok) {
+                    noidung_ds_cty_html += `
+                   
+               <table class="table table-striped table-responsive-lg">
+              <thead class="table table-dark">
+              <tr>
+              <th>STT</th>
+                <th>MAHD</th>
+                <th>TEN HOAT DONG</th>
+                <th>NGUOI TAO</th>
+                <th>DIEM</th>
+                 <th>SO LUONG DANG KI</th> 
+                 <th>SO LUONG</th>
+
+              </tr>
+              </thead><tbody>`;
+                    var Stt = 1;
+                    //duyet json -> noidung_ds_cty_html xịn
+                    for (var sv of json.data) {
+
+                        //sua_xoa là 2 nút: mỗi nút kèm theo data để sau này phân loại: là data-cid  và data-action
+
+              
+                        noidung_ds_cty_html += `
+                <tr>
+                 <td>${Stt++}</td>
+                <td>${sv.mahd}</td>
+                <td>${sv.tenhd}</td>
+                <td>${sv.nguoitao}</td>
+                <td>${sv.diem}</td>
+                 <td>${sv.thanhvien}</td>
+                 <td>${sv.soluong}</td>
+                
+               
+              </tr>`;
+                    }
+                    noidung_ds_cty_html += "</tbody></table>";
+                } else {
+                    noidung_ds_cty_html = "không có dữ liệu";
+                }
+
+                $('#ds_sinhvien').html(noidung_ds_cty_html); //gán html vào thân dialog
+               
+
+
+              
+               
+            });
+    }
+    /*  Lua chon danh sach kieu gi*/
     function select_list() {
         var dialog_list_company = $.confirm({
             title: "MOI BAN LUA CHON",
@@ -590,6 +650,13 @@
                     });
                 });
 
+                /*Danh sach dang ki*/
+                $('#btn_dangki').click(function () {
+                    dialog_list_company.close();
+                    $('#sinhvien').html(function () {
+                        list_dangki();
+                    });
+                });
 
             }
         });

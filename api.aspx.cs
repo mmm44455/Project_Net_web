@@ -112,6 +112,14 @@ namespace QLNK_NET
             Response.Write(json);
 
         }
+
+        void list_dangki(string action)
+        {
+            SqlServer db = new SqlServer();
+            SqlCommand cm = db.GetCmd("Dangkingoaikhoa", action);
+            string json = (string)db.Scalar(cm); //thuc thi SqlCommand cm này để thu về jsonhd
+            Response.Write(json);
+        }
         protected void Page_Load(object sender, EventArgs e)
         {
             string action = Request["action"];
@@ -142,6 +150,11 @@ namespace QLNK_NET
                 // update Mssv
                 case "update_mssv":
                     update_ms(action); 
+                    break;
+
+                //Danh sach dang ki ngoai khoa
+                case "dangki":
+                    list_dangki(action);
                     break;
             }
         }
