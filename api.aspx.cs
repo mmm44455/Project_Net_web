@@ -120,6 +120,16 @@ namespace QLNK_NET
             string json = (string)db.Scalar(cm); //thuc thi SqlCommand cm này để thu về jsonhd
             Response.Write(json);
         }
+
+
+        void bao_luu(string action)
+        {
+            SqlServer db = new SqlServer();
+            SqlCommand hd = db.GetCmd("Danhsachbaoluu", action);
+            string json = (string)db.Scalar(hd); //thuc thi SqlCommand cm này để thu về jsonhd
+            Response.Write(json);
+        }
+
         protected void Page_Load(object sender, EventArgs e)
         {
             string action = Request["action"];
@@ -155,6 +165,10 @@ namespace QLNK_NET
                 //Danh sach dang ki ngoai khoa
                 case "dangki":
                     list_dangki(action);
+                    break;
+
+                case "baoluu":
+                    bao_luu(action);
                     break;
             }
         }

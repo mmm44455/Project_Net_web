@@ -501,10 +501,9 @@
                 <th>ĐIA CHI </th>
                 <th>NGUOI TAO</th>
                 <th>DIEM</th>
-                 <th>MO TA</th> 
                  <th>TO CHUC</th>
                   <th>SO LUONG</th>
-                
+                   <th>TRANG THAI</th>
                   <th>Sua/xoa</th>
               </tr>
               </thead><tbody>`;
@@ -524,10 +523,9 @@
                 <td>${sv.diachi}</td>
                 <td>${sv.nguoitao}</td>
                 <td>${sv.diem}</td>
-                <td>${sv.mota}</td>
                 <td>${sv.tochuc}</td>
                   <td>${sv.soluong}</td>
-               
+                 <td>${sv.trangthai}</td>
                 <td>${sua}</td>
               </tr>`;
                     }
@@ -587,6 +585,7 @@
                 <th>DIEM</th>
                  <th>SO LUONG DANG KI</th> 
                  <th>SO LUONG</th>
+                 <th>THOI GIAN HOAT DONG</th>
 
               </tr>
               </thead><tbody>`;
@@ -606,6 +605,7 @@
                 <td>${sv.diem}</td>
                  <td>${sv.thanhvien}</td>
                  <td>${sv.soluong}</td>
+                  <td>${sv.trangthai}</td>
                 
                
               </tr>`;
@@ -623,6 +623,64 @@
                
             });
     }
+
+/*    danh sach bao luu */
+    function list_baoluu() {
+        $.post(api,
+            {
+                action: 'baoluu'
+            },
+            function (data) {
+                //alert(data)
+                console.log(data);
+                var json = JSON.parse(data);
+                var noidung_ds_cty_html = "";
+                if (json.ok) {
+                    noidung_ds_cty_html += `
+
+               <table class="table table-striped table-responsive-lg">
+              <thead class="table table-dark">
+              <tr>
+              <th>STT</th>
+                <th>MSSV</th>
+                <th>HỌ TÊN </th>
+                <th>MÃ LƯU </th>
+                <th>LỚP  </th>
+                <th>NGÀY SINH </th>
+                <th>DIỂM NGOẠI KHÓA </th>
+               
+              </tr>
+              </thead><tbody>`;
+                    var Stt = 1;
+                    //duyet json -> noidung_ds_cty_html xịn
+                    for (var sv of json.data) {
+
+                        //sua_xoa là 2 nút: mỗi nút kèm theo data để sau này phân loại: là data-cid  và data-action
+
+                        noidung_ds_cty_html += `
+                <tr>
+                 <td>${Stt++}</td>
+                <td>${sv.mssv}</td>
+               <td>${sv.hoten}</td>
+                <td>${sv.id}</td>
+                 <td>${sv.lop}</td>
+                  <td>${sv.ngaysinh}</td>
+                   <td>${sv.diem}</td>
+
+             
+              </tr>`;
+                    }
+                    noidung_ds_cty_html += "</tbody></table>";
+                } else {
+                    noidung_ds_cty_html = "không có dữ liệu";
+                }
+
+                $('#ds_sinhvien').html(noidung_ds_cty_html); //gán html vào thân dialog
+
+               
+            });
+    }
+
     /*  Lua chon danh sach kieu gi*/
     function select_list() {
         var dialog_list_company = $.confirm({
@@ -657,7 +715,13 @@
                         list_dangki();
                     });
                 });
-
+             /*   Danh sach sinh vien bao luu */
+                $('#btn_baoluu').click(function () {
+                    dialog_list_company.close();
+                    $('#sinhvien').html(function () {
+                        list_baoluu();
+                    });
+                });
             }
         });
     }
