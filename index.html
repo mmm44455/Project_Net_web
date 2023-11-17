@@ -1,64 +1,57 @@
 ﻿<!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8" />
-    <title>Quan li diem Ngoai khoa</title>
-    <link href="./icon/img/phượng hoàng.jpg" rel="icon" type="image/x-icon" />
+    <title>Quản lí điểm Ngoại khóa</title>
+    <link rel="icon" href="./icon/img/phượng hoàng.jpg" type="image/x-icon" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.2/jquery-confirm.min.css" />
+    <link rel="stylesheet" href="accset/intex.css" />
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
-    <link href="accset/bootstrap.min.css" rel="stylesheet" />
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.2/jquery-confirm.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.2/jquery-confirm.min.js"></script>
-
-    <link href="./icon/fontawesome-free-6.4.2-web/css/all.css" rel="stylesheet" />
-    <link href="accset/intex.css" rel="stylesheet" />
-
-
+    <script src="accset/codenet.js"></script>
 </head>
 <body>
     <header>
-        <nav>
+        <nav  >
             <div class="logo" style="padding-left:20px;">
                 <img src="./icon/img/unnamed.png" alt="Alternate Text" class="image" />
                 <div class="heder-logo">
                     <h3 style="color:whitesmoke;padding-left:10px;font-size:25px">Quản lí điểm ngoại khóa </h3>
                 </div>
-
             </div>
 
-            <button class="btn btn-primary" id="btn-login" style="margin-right:10px;"> <i class="fa-solid fa-right-to-bracket"></i> Login</button>
+
+            <div style="display: flex;">
+                <p id="nameid" style="display: none; color: whitesmoke;padding: 10px;margin-top:10px;" class="col-auto m-lg-auto">Xin chào user</p>
+                <p id="nameid1" style="display: none; color: whitesmoke;padding: 10px;margin-top:10px;" class="col-auto m-lg-auto">Xin chào <div id="username"> </div></p>
+                <p id="nameid2" style="display: none; color: whitesmoke;padding: 10px;margin-top:10px;" class="col-auto m-lg-auto">Xin chào admin</p>
+                <button class="btn btn-primary col-auto m-lg-auto" id="btn-login" style="margin-right:10px;"> <i class="fas fa-sign-in-alt"></i> Login</button>
+                <button class="btn btn-primary col-auto m-lg-auto" id="btn-logout" style="margin-right:10px; display:none;"> Logout  <i class="fas fa-sign-out-alt"></i></button>
+            </div>
+               
+          
+               
+         
         </nav>
-
     </header>
-    <div class="slider">
-
-    </div>
-    <div class="main" style="height: 50%;">
-        <button class="btn btn-primary" style="margin-left:10px;" id="btn-list"> <i class="fa-solid fa-list"></i> DANH SÁCH</button>
+    <div class="slider"></div>
+    <div class="main">
+        <button class="btn btn-primary" style="margin-left:10px;" id="btn-list"> <i class="fas fa-list"></i> DANH SÁCH</button>
         <button class="btn btn-primary" style="margin-left:10px;" id="btn-hd">TÌM KIẾM</button>
         <div id="sinhvien">
-            <div class="list" id="ds_sinhvien" style="padding: 20px">
-
-            </div>
+            <div class="list" id="ds_sinhvien" style="padding: 20px"></div>
         </div>
-
     </div>
-
     <footer>
         <div class="icon">
-            <a href="" class="link"> <i class="fa-brands fa-youtube"></i></a>
-            <a href="https://github.com/mmm44455/Project_Net_web" class="link"><i class="fa-brands fa-github"></i></a>
-            <a href="" class="link"><i class="fa-brands fa-facebook"></i></a>
+            <a href="" class="link"> <i class="fab fa-youtube"></i></a>
+            <a href="https://github.com/mmm44455/Project_Net_web" class="link"><i class="fab fa-github"></i></a>
+            <a href="" class="link"><i class="fab fa-facebook"></i></a>
             <p style="margin-top:20px">Powered by Nguyễn Duy Cao </p>
         </div>
-
     </footer>
-    <style>
-
-    </style>
-
-    <script src="accset/codenet.js"></script>
-    
 </body>
 </html>

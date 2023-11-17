@@ -1,6 +1,7 @@
 ﻿$(document).ready(function () {
     const api = '/api.aspx';
-
+    var dalogin = false;
+    var quyen = 0;
    /* Tim hoat dong da quet theo thoi gian*/
     function list_search_ngay(mssv) {
         originalConfirm = $.confirm;
@@ -429,13 +430,14 @@
                     else if (action == 'list_xoa') {
                     $(this).closest('tr').remove();
                         list_xoa(id, json);
-                        
                     }
                 });
-
-                $('.add_sinhvien ').click(function () {
-                    add_sinhvien();
-                })
+               
+                    $('.add_sinhvien ').click(function () {
+                        add_sinhvien();
+                    });
+                console.log(checkAccess(2));
+               
                 $('.restart ').click(function () {
                     list_sinhvien();
                 })
@@ -444,6 +446,81 @@
                     list_update_mssv(mssv);
                 })
             });
+    }
+
+
+    function check_login() {
+        var data_gui_di = {
+            action: 'dangnhap'
+        };
+
+        var name = $('#name').val();
+        var pass = $('#pass').val();
+
+        if (!name || !pass) {
+            $.alert('Bạn chưa điền gì cả !');
+            return false;
+        } else {
+            $.post(api, data_gui_di, function (data) {
+                try {
+                    var json = JSON.parse(data);
+
+                    if (json.ok) {
+                        alert("Đăng nhập thành công");
+
+                        var matchedUser = json.data.find(function (lg) {
+                            return lg.name == name && lg.pass == pass;
+                        });
+
+                        if (matchedUser) {
+                            quyen = matchedUser.role;
+                            dalogin = true;
+
+                            if (quyen == 1) {
+                                $.alert("Đăng nhập thành công với quyền admin");
+                               
+                                $('#username').html(matchedUser.name);
+                              
+                            } else if (quyen == 2) {
+                                $.alert("Đăng nhập thành công với quyền người dùng");
+                                // Thực hiện các hành động khác tùy thuộc vào quyền
+                            }
+                           
+                        } else {
+                            alert("Đăng nhập không thành công");
+                        }
+                        $('#btn-login').hide();
+                            $('#nameid1').show();
+                            $('#btn-logout').show();
+                    } else {
+                        alert("Đăng nhập không thành công");
+                    }
+                } catch (error) {
+                    console.error("Lỗi khi parse JSON:", error);
+                }
+            });
+        }
+    }
+
+
+    function checkAccess(requiredRole) {
+        if (!dalogin) {
+            // Nếu chưa đăng nhập, trả về giá trị 0 (không có quyền)
+            return 0;
+        } else {
+            // Nếu đã đăng nhập, kiểm tra quyền truy cập
+            switch (requiredRole) {
+                case 1:
+                    // Kiểm tra nếu có quyền 1
+                    return quyen === 1 ? 1 : 0;
+                case 2:
+                    // Kiểm tra nếu có quyền 2
+                    return quyen === 2 ? 2 : 0;
+                default:
+                    // Trường hợp khác, có thể mở rộng theo nhu cầu
+                    return 0;
+            }
+        }
     }
 
     /*Login trang web*/
@@ -460,7 +537,8 @@
                     text: 'Đăng nhập',
                     btnClass: 'btn-info',
                     action: function () {
-                            
+                        check_login();
+        
                     }
 
                 },
@@ -477,6 +555,8 @@
         });
 
     }
+
+
 
     /* danh sach hoat dong*/
     function list_hoat() {
@@ -733,5 +813,17 @@
     $('#btn-list').click(function () {
         select_list();
     });
+    $('#btn-logout').click(function () {
+        quyen = 0; // Đặt quyền về giá trị mặc định hoặc giá trị bạn mong muốn
+        dalogin = false;
 
+        // Ẩn hoặc hiển thị các phần tử tùy thuộc vào trạng thái đăng nhập
+        $('#btn-login').show();
+        $('#nameid1').hide();
+        $('#username').html(''); // Xóa tên người dùng
+        $('#btn-logout').hide();
+
+        // Chuyển về trang không đăng nhập (ví dụ: trang chính)
+        window.location.href = 'https://localhost:44307/';
+    });
 });

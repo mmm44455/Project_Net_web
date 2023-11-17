@@ -130,6 +130,39 @@ namespace QLNK_NET
             Response.Write(json);
         }
 
+        void Login(string action)
+        {
+            SqlServer db = new SqlServer();
+            SqlCommand cm = db.GetCmd("Login_web", action);
+            switch (action)
+            {
+                //2 loại này truyền 5 tham số chung
+                case "themuser":
+                    cm.Parameters.Add("@username", SqlDbType.NVarChar, 50).Value = Request["user"];
+                    cm.Parameters.Add("@pass", SqlDbType.NVarChar, 50).Value = Request["pass"];
+                    cm.Parameters.Add("@@role_id", SqlDbType.NVarChar, 20).Value = Request["chucvu"];
+                    break;
+
+            }
+            switch (action)
+            {
+                case "themuser":
+                case "xoauser":
+                    cm.Parameters.Add("@id", SqlDbType.NVarChar, 30).Value = Request["id"];
+                    break;
+            }
+
+            string json = (string)db.Scalar(cm); //thuc thi SqlCommand cm này để thu về jsonhd
+            Response.Write(json);
+        }
+
+        void Dangnhap(string action)
+        {
+            SqlServer db = new SqlServer();
+            SqlCommand cm = db.GetCmd("Login_web", action);
+            string json = (string)db.Scalar(cm); //thuc thi SqlCommand cm này để thu về jsonhd
+            Response.Write(json);
+        }
         protected void Page_Load(object sender, EventArgs e)
         {
             string action = Request["action"];
@@ -169,6 +202,17 @@ namespace QLNK_NET
 
                 case "baoluu":
                     bao_luu(action);
+                    break;
+
+           
+                case "themuser":
+                case "xoauser":
+                case " suauser":
+                    Login(action);
+                    break;
+
+                case "dangnhap":
+                    Dangnhap(action);
                     break;
             }
         }
