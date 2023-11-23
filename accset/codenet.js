@@ -1,7 +1,7 @@
 ﻿$(document).ready(function () {
     const api = '/api.aspx';
-    var dalogin = false;
-    var quyen = 0;
+
+    var isAddHdVisible = false;
    /* Tim hoat dong da quet theo thoi gian*/
     function list_search_ngay(mssv) {
         originalConfirm = $.confirm;
@@ -155,9 +155,9 @@
 
         var sv;
         for (var item of json.data) {
-            console.log(item);
+           
             if (item.MSSV == id) {
-                sv = item;
+                sv = item; console.log(sv);
                 break;
             }
         } 
@@ -355,6 +355,116 @@
         });
     }
 
+
+    /*    cap nhat sinh vien*/
+    function capnhat_sv(json) {
+        var noidung_ds_cty_html = "";
+        if (json.ok) {
+            noidung_ds_cty_html += `
+                    <button class="btn btn-outline-info add_sinhvien " data-action="list_add_sinhvien" style="margin-bottom:10px;"><i class="fa-solid fa-plus"></i> Thêm sinh viên mới</button>
+                     <button class="btn btn-outline-success restart" data-action="list_add_sinhvien" style="margin-bottom:10px;"><i class="fa-solid fa-rotate-right"></i> Reratrt</button><br>
+                     <input type="text" id="searchSV" style="padding:10px;"/> 
+                      <button class="btn btn-outline-info search" data-action="list_search_sinhvien" style="margin-bottom:10px;"><i class="fa-solid fa-magnifying-glass" style="color: #1f5137;"></i> Search</button>
+               <table class="table table-striped table-responsive-lg">
+              <thead class="table table-dark">
+              <tr>
+              <th>STT</th>
+                <th>MSSV</th>
+                <th>HO TEN</th>
+                <th>ĐIA CHI </th>
+                <th>NGAY SINH</th>
+                <th>TINH TRANG </th>
+                 <th>LOP </th>
+                <th>MAT KHAU</th>
+                 <th>Hoat dong ngoai khoa</th>
+                  <th>Sua/xoa</th>
+              </tr>
+              </thead><tbody>`;
+            var Stt = 1;
+            //duyet json -> noidung_ds_cty_html xịn
+            for (var sv of json.data) {
+
+                //sua_xoa là 2 nút: mỗi nút kèm theo data để sau này phân loại: là data-cid  và data-action
+                var tinhtrangChuoi = sv.tinhtrang == 1 ? "không học nữa " : "Đang theo học";
+                var list_hoat_dong = `<button class="btn btn-success "  data-mssv="${sv.MSSV}" data-action="list_hoatdong"> <i class="fa-solid fa-file-export"></i> Hoạt động  </button>`;
+
+
+                var sua = `<button class="btn btn-sm btn-warning nut_xoa_sua "  data-id="${sv.MSSV}" data-loai="list_sua" style="margin-right:10px;"> <i class="fa-solid fa-pen"></i> Sửa</button>`;
+                sua += `<button class="btn btn-sm btn-danger nut_xoa_sua "  data-id="${sv.MSSV}"  data-loai="list_xoa"><i class="fa-solid fa-trash"></i> Xóa</button>`;
+                sua += `<button class="btn btn-outline-success update_mssv " data-action="list_update_mssv" data-id="${sv.MSSV}" style="margin-left:10px;"><i class="fa-solid fa-square-pen"></i> Sửa MSSV  </button>`
+                noidung_ds_cty_html += `
+                <tr>
+                 <td>${Stt++}</td>
+                <td>${sv.MSSV}</td>
+                <td>${sv.hoten}</td>
+                <td>${sv.diachi}</td>
+                <td>${sv.ngaysinh}</td>
+                <td>${tinhtrangChuoi}</td>
+                 <td>${sv.lop}</td>
+                <td>${sv.matkhau}</td>
+                <td>${list_hoat_dong}</td>
+                <td>${sua}</td>
+              </tr>`;
+            }
+            noidung_ds_cty_html += "</tbody></table>";
+        } else {
+            noidung_ds_cty_html = "không có dữ liệu";
+        }
+
+       
+            $('#ds_sinhvien').html(noidung_ds_cty_html);
+            $('#ds_sinhvien button[data-action="list_hoatdong"]').click(function () {
+                var mssv = $(this).data('mssv');
+                list_hoatdong(mssv);
+            });
+            $('.nut_xoa_sua').click(function () {
+                var action = $(this).data('loai');
+                var id = $(this).data('id');
+                if (action == 'list_sua') {
+                    list_sua(id, json);
+                }
+                else if (action == 'list_xoa') {
+                    $(this).closest('tr').remove();
+                    list_xoa(id, json);
+                }
+            });
+
+            $('.add_sinhvien ').click(function () {
+                add_sinhvien();
+            });
+
+            $('.restart ').click(function () {
+                list_sinhvien();
+            })
+            $('.update_mssv ').click(function () {
+                var mssv = $(this).data('id');
+                list_update_mssv(mssv);
+            })
+
+
+            $('.search ').click(function () {
+                search_SV();
+            })
+      
+      
+    }
+ /*   tim kiem trong danh sach sinh vien*/
+    function search_SV() {
+        var data_gui = {
+            action: 'search_sv',
+            search: $('#searchSV').val()
+        }
+        $.post(api, data_gui, function (data) {
+            var json = JSON.parse(data);
+            console.log(json);
+            if (json.ok) {
+                var json = JSON.parse(data);
+                capnhat_sv(json);
+            } else {
+                alert(json.msg)
+            }
+        });
+    }
   /*Danh sach sinh vien co trong database*/
     function list_sinhvien() {
         $.post(api,
@@ -365,164 +475,69 @@
                 //alert(data)
                 console.log(data);
                 var json = JSON.parse(data);
-                var noidung_ds_cty_html = "";
-                if (json.ok) {
-                    noidung_ds_cty_html += `
-                    <button class="btn btn-outline-info add_sinhvien " data-action="list_add_sinhvien" style="margin-bottom:10px;"><i class="fa-solid fa-plus"></i> Thêm sinh viên mới</button>
-                     <button class="btn btn-outline-success restart" data-action="list_add_sinhvien" style="margin-bottom:10px;"><i class="fa-solid fa-rotate-right"></i> Reratrt</button>
-               <table class="table table-striped table-responsive-lg">
-              <thead class="table table-dark">
-              <tr>
-              <th>STT</th>
-                <th>MSSV</th>
-                <th>HO TEN</th>
-                <th>ĐIA CHI </th>
-                <th>NGAY SINH</th>
-                <th>TINH TRANG </th>
-                <th>MAT KHAU</th>
-                 <th>Hoat dong ngoai khoa</th>
-                  <th>Sua/xoa</th>
-              </tr>
-              </thead><tbody>`;
-                    var Stt = 1;
-                    //duyet json -> noidung_ds_cty_html xịn
-                    for (var sv of json.data) {
-                        
-                        //sua_xoa là 2 nút: mỗi nút kèm theo data để sau này phân loại: là data-cid  và data-action
-                        var tinhtrangChuoi = sv.tinhtrang == 1 ? "không học nữa " : "Đang theo học";
-                        var list_hoat_dong = `<button class="btn btn-success "  data-mssv="${sv.MSSV}" data-action="list_hoatdong"> <i class="fa-solid fa-file-export"></i> Hoạt động  </button>`;
-
-
-                        var sua = `<button class="btn btn-sm btn-warning nut_xoa_sua "  data-id="${sv.MSSV}" data-loai="list_sua" style="margin-right:10px;"> <i class="fa-solid fa-pen"></i> Sửa</button>`;
-                        sua += `<button class="btn btn-sm btn-danger nut_xoa_sua "  data-id="${sv.MSSV}"  data-loai="list_xoa"><i class="fa-solid fa-trash"></i> Xóa</button>`;
-                        sua += `<button class="btn btn-outline-success update_mssv " data-action="list_update_mssv" data-id="${sv.MSSV}" style="margin-left:10px;"><i class="fa-solid fa-square-pen"></i> Sửa MSSV  </button>`
-                        noidung_ds_cty_html += `
-                <tr>
-                 <td>${Stt++}</td>
-                <td>${sv.MSSV}</td>
-                <td>${sv.hoten}</td>
-                <td>${sv.diachi}</td>
-                <td>${sv.ngaysinh}</td>
-                <td>${tinhtrangChuoi}</td>
-                <td>${sv.matkhau}</td>
-                <td>${list_hoat_dong}</td>
-                <td>${sua}</td>
-              </tr>`;
-                    }
-                    noidung_ds_cty_html += "</tbody></table>";
-                } else {
-                    noidung_ds_cty_html = "không có dữ liệu";
-                }
-
-                $('#ds_sinhvien').html(noidung_ds_cty_html); //gán html vào thân dialog
-                $('#ds_sinhvien button[data-action="list_hoatdong"]').click(function () {
-                    var mssv = $(this).data('mssv');
-                    list_hoatdong(mssv);
-                });
-
-
-                $('.nut_xoa_sua').click(function () {
-                    var action = $(this).data('loai');
-                    var id = $(this).data('id');
-                    if (action == 'list_sua') {
-                        list_sua(id, json);
-                    }
-                    else if (action == 'list_xoa') {
-                    $(this).closest('tr').remove();
-                        list_xoa(id, json);
-                    }
-                });
-               
-                    $('.add_sinhvien ').click(function () {
-                        add_sinhvien();
-                    });
-                console.log(checkAccess(2));
-               
-                $('.restart ').click(function () {
-                    list_sinhvien();
-                })
-                $('.update_mssv ').click(function () {
-                    var mssv = $(this).data('id');
-                    list_update_mssv(mssv);
-                })
+                capnhat_sv(json);
             });
     }
 
-
+    var role = " ";
     function check_login() {
-        var data_gui_di = {
-            action: 'dangnhap'
-        };
-
         var name = $('#name').val();
         var pass = $('#pass').val();
 
         if (!name || !pass) {
-            $.alert('Bạn chưa điền gì cả !');
+            $.alert('Bạn chưa điền gì cả!');
             return false;
         } else {
+            var data_gui_di = {
+                action: 'login',
+                name: name, 
+                pass: pass
+            };
+
             $.post(api, data_gui_di, function (data) {
-                try {
+              
                     var json = JSON.parse(data);
 
-                    if (json.ok) {
-                        alert("Đăng nhập thành công");
+                if (json.ok) {
+                    console.log(data);
 
-                        var matchedUser = json.data.find(function (lg) {
-                            return lg.name == name && lg.pass == pass;
-                        });
-
-                        if (matchedUser) {
-                            quyen = matchedUser.role;
-                            dalogin = true;
-
-                            if (quyen == 1) {
-                                $.alert("Đăng nhập thành công với quyền admin");
-                               
-                                $('#username').html(matchedUser.name);
-                              
-                            } else if (quyen == 2) {
-                                $.alert("Đăng nhập thành công với quyền người dùng");
-                                // Thực hiện các hành động khác tùy thuộc vào quyền
-                            }
-                           
+                 role = json.role === 2 ? "admin" : "user";
+                    $.alert(`Đăng nhập thành công với quyền ${role}`);
+                   
+                    if (json.role === 2) {
+                        $('#btn-hd').show();
+                        $('#btn-hd').click(function () {
+                            isAddHdVisible = true;
+                            list_hoat();
+                        })
+                        $('#btn-list').show();
+                        $('#btn-list').click(function () {
+                            isAddHdVisible = false;
+                           list_sinhvien();
+                        })
+                        
+                    } else if (json.role === 1) {
+                        $('#btn-list').show();
+                        $('#btn-list').click(function () {
+                            $.alert("ban k phai la admin nen khong the dung chuc nang nay");
+                        })
+                       
+                    }
+                        
+                    
+                    // Ẩn/hiện các phần tử tùy thuộc vào quyền người dùng
+                    $('#btn-login').hide();
+                    $('#nameid').show();
+                    $('#btn-logout').show();
+                    $('#username').html(name);
+                    $('#role').html(role);
                         } else {
                             alert("Đăng nhập không thành công");
                         }
-                        $('#btn-login').hide();
-                            $('#nameid1').show();
-                            $('#btn-logout').show();
-                    } else {
-                        alert("Đăng nhập không thành công");
-                    }
-                } catch (error) {
-                    console.error("Lỗi khi parse JSON:", error);
-                }
+
             });
         }
     }
-
-
-    function checkAccess(requiredRole) {
-        if (!dalogin) {
-            // Nếu chưa đăng nhập, trả về giá trị 0 (không có quyền)
-            return 0;
-        } else {
-            // Nếu đã đăng nhập, kiểm tra quyền truy cập
-            switch (requiredRole) {
-                case 1:
-                    // Kiểm tra nếu có quyền 1
-                    return quyen === 1 ? 1 : 0;
-                case 2:
-                    // Kiểm tra nếu có quyền 2
-                    return quyen === 2 ? 2 : 0;
-                default:
-                    // Trường hợp khác, có thể mở rộng theo nhu cầu
-                    return 0;
-            }
-        }
-    }
-
     /*Login trang web*/
     function list_login() {
         var dialog_list_company = $.confirm({
@@ -556,8 +571,7 @@
 
     }
 
-
-
+ 
     /* danh sach hoat dong*/
     function list_hoat() {
         $.post(api,
@@ -566,78 +580,205 @@
             },
             function (data) {
                 //alert(data)
-                console.log(data);
+                console.log("Raw JSON data:", data);
+
                 var json = JSON.parse(data);
-                var noidung_ds_cty_html = "";
-                if (json.ok) {
-                    noidung_ds_cty_html += `
-                    <button class="btn btn-outline-info add_sinhvien " data-action="list_add_sinhvien" style="margin-bottom:10px;"><i class="fa-solid fa-plus"></i> Thêm  hoat dong</button>
+                capnhat_hd(json);
+            });
+    }
+
+    /*    tim kiem hoat dong*/
+    function search_hd() {
+        var data_gui = {
+            action: 'search_hd',
+            search: $('#searchHD').val()
+        }
+        $.post(api, data_gui, function (data) {
+            var json = JSON.parse(data);
+            console.log(json);
+            if (json.ok) {
+                var json = JSON.parse(data);
+                capnhat_hd(json);
+            } else {
+                alert(json.msg)
+            }
+        })
+    }
+
+    function themhoatdong() { 
+        var content =
+            `
+     MAHD: <input id="nhap-MSSV" style="margin-bottom:10px; padding:4px; wigth:100%;"><br>
+     Name: <input id="nhap-name" style="margin-bottom:10px; padding:4px; wigth:100%;"><br>
+    Address: <input id="nhap-address" style="margin-bottom:10px; padding:4px; wigth:100%;"><br>
+    NGAYBATDAU: <input type=date id="nhap-date1" style="margin-bottom:10px; padding:4px; wigth:100%;"><br>
+      NGAYKETTHUC: <input type=date id="nhap-date2" style="margin-bottom:10px; padding:4px; wigth:100%;"><br>
+    NGUOITAO: <input id="nhap-nguoitao" style="margin-bottom:10px; padding:4px; wigth:100%;"><br>
+    SOLUONG: <input id="nhap-soluong" style="margin-bottom:10px; padding:4px; wigth:100%;"><br>
+    DIEM: <input id="nhap-diem" style="margin-bottom:10px; padding:4px; wigth:100%;"><br>
+    TOCHUC: <input id="nhap-tochuc" style="margin-bottom:10px; padding:4px; wigth:100%;"><br>
+    `
+
+        var dialog_add = $.confirm({
+            title: 'Tạo 1 hoạt động mới  ',
+            content: content,
+            columnClass: 'small',
+            buttons: {
+                save: {
+                    text: 'Tạo ',
+                    btnClass: 'btn btn-outline-danger',
+                    action: function () {
+                        var data_gui_di = {
+                            action: 'themhoatdong',
+                            mahd: $('#nhap-MSSV').val(),
+                            tenhd: $('#nhap-name').val(),
+                            diachi: $('#nhap-address').val(),
+                            ngaybatdau: $('#nhap-date1').val(),
+                            ngayketthuc: $('#nhap-date2').val(),
+                            soluong: $('#nhap-soluong').val(),
+                            diem: $('#nhap-diem').val(),
+                            tochuc: $('#nhap-tochuc').val(),
+                            nguoitao: $('#nhap-nguoitao').val()
+                          
+                        }
+                        //console.log(data_gui_di);
+                        $.post(api, data_gui_di, function (data) {
+                            var json = JSON.parse(data);
+                            if (json.ok) {
+                                dialog_add.close();
+                                list_hoat();
+                            } else {
+                                alert(json.msg)
+                            }
+                        });
+                    }//het save
+                },
+                Close: {
+                    text: "Trở về ",
+                    btnClass: 'btn btn-outline-primary'
+                }
+            }
+        });
+    }
+
+    function suahoatdong(mahd, json) {
+
+        var hd;
+        for (var item of json.data) {
+            if (item.mahd == mahd) {
+                hd = item;
+             console.log(hd);
+                break;
+            }   
+        }
+
+        var content = `TENHD: <input type=text id="edit-name" value="${hd.ten}" style="margin-bottom:10px; padding:4px; wigth:100%;"> <br>
+                       `
+        var dialog_edit = $.confirm({
+            title: 'Update sinh vien ',
+            content: content,
+
+            buttons: {
+                save: {
+                    text: 'Lưu thông tin',
+                    btnClass: 'btn btn-outline-danger',
+                    action: function () {
+                        var data_gui = {
+                            action: 'update_hd',
+                            id: mahd,
+                            tenhd: $('#edit-name').val()
+                            
+                        }
+
+                        $.post(api, data_gui, function (data) {
+                            var json = JSON.parse(data);
+                            if (json.ok) {
+                                console.log(json);
+                            } else {
+                                alert(json.msg)
+                            }
+                        })
+                    }
+                }
+
+
+            }
+        })
+
+    }
+
+    /* cap nhat hoat dong*/
+    function capnhat_hd(json) {
+        var noidung_ds_cty_html = "";
+        if (json.ok) {
+            noidung_ds_cty_html += `
+             <button class="btn btn-outline-info add_hd " data-action="them_hd" style="margin-bottom:10px;display:none;"><i class="fa-solid fa-plus"></i> Tạo hoạt động </button>
+                   <input type="text" id="searchHD" style="padding:10px;"/> 
+                      <button class="btn btn-outline-info search" data-action="list_search_sinhvien" style="margin-bottom:10px;"><i class="fa-solid fa-magnifying-glass" style="color: #1f5137;"></i> Search</button>
                <table class="table table-striped table-responsive-lg">
               <thead class="table table-dark">
               <tr>
               <th>STT</th>
                 <th>MAHD</th>
-                <th>TEN HOAT DONG</th>
-                <th>ĐIA CHI </th>
-                <th>NGUOI TAO</th>
-                <th>DIEM</th>
-                 <th>TO CHUC</th>
-                  <th>SO LUONG</th>
-                   <th>TRANG THAI</th>
-                  <th>Sua/xoa</th>
+                <th>TÊN HOẠT ĐỘNG </th>
+                <th>NGƯỜI TẠO </th>
+                <th>ĐIỂM </th>
+                 <th>SỐ LƯỢNG </th>
+                 <th>NGAY BẮT ĐẦU </th>
+                 <th>NGÀY KẾT THÚC </th>
+                  <th>TÌNH TRẠNG </th>
+                   <th style="margin-left:10px;display:none;">SỬA </th>
               </tr>
               </thead><tbody>`;
-                    var Stt = 1;
-                    //duyet json -> noidung_ds_cty_html xịn
-                    for (var sv of json.data) {
+            var Stt = 1;
+            //duyet json -> noidung_ds_cty_html xịn
+            for (var sv of json.data) {
 
-                        //sua_xoa là 2 nút: mỗi nút kèm theo data để sau này phân loại: là data-cid  và data-action
-                      
-                        var sua = `<button class="btn btn-sm btn-warning nut_xoa_sua "  data-id="${sv.MSSV}" data-loai="list_sua" style="margin-right:10px;"> <i class="fa-solid fa-pen"></i> Sửa</button>`;
-                        sua += `<button class="btn btn-sm btn-danger nut_xoa_sua "  data-id="${sv.MSSV}"  data-loai="list_xoa"><i class="fa-solid fa-trash"></i> Xóa</button>`;
-                        noidung_ds_cty_html += `
+                //sua_xoa là 2 nút: mỗi nút kèm theo data để sau này phân loại: là data-cid  và data-action
+
+                var sua = `<button class="btn btn-sm btn-warning nut_xoa_sua "  data-id="${sv.mahd}" data-loai="suahoatdong" style="margin-right:10px;"> <i class="fa-solid fa-pen"></i> Sửa</button>`;
+
+                noidung_ds_cty_html += `
                 <tr>
                  <td>${Stt++}</td>
                 <td>${sv.mahd}</td>
                 <td>${sv.ten}</td>
-                <td>${sv.diachi}</td>
                 <td>${sv.nguoitao}</td>
                 <td>${sv.diem}</td>
-                <td>${sv.tochuc}</td>
-                  <td>${sv.soluong}</td>
-                 <td>${sv.trangthai}</td>
-                <td>${sua}</td>
+                 <td>${sv.diem1}</td>
+                    <td>${sv.ngaybatdau}</td>
+                      <td>${sv.ngayketthuc}</td>
+                        <td>${sv.trangthai}</td>
+                  <td style="display:none;">${sua}</td>
+               
               </tr>`;
-                    }
-                    noidung_ds_cty_html += "</tbody></table>";
-                } else {
-                    noidung_ds_cty_html = "không có dữ liệu";
-                }
+            }
+            noidung_ds_cty_html += "</tbody></table>";
+        } else {
+            noidung_ds_cty_html = "không có dữ liệu";
+        }
+        $('#ds_sinhvien').html(noidung_ds_cty_html);
 
-                $('#ds_sinhvien').html(noidung_ds_cty_html); //gán html vào thân dialog
-                $('#ds_sinhvien button[data-action="list_hoatdong"]').click(function () {
-                    var mssv = $(this).data('mssv');
-                    list_hoatdong(mssv);
-                });
+        if (isAddHdVisible) {
+            $('.add_hd').show();
+        } else {
+            $('.add_hd').hide();
+        }
 
 
-                $('.nut_xoa_sua').click(function () {
-                    var action = $(this).data('loai');
-                    var id = $(this).data('id');
-                    if (action == 'list_sua') {
-                        list_sua(id, json);
-                    }
-                    else if (action == 'list_xoa') {
-                        $(this).closest('tr').remove();
-                        list_xoa(id, json);
-
-                    }
-                });
-
-                $('.add_sinhvien ').click(function () {
-                  
-                })
-            });
+        $('.search ').click(function () {
+            search_hd();
+        })
+        $('.add_hd ').click(function () {
+            themhoatdong();
+        })
+        $('.nut_xoa_sua  ').click(function () {
+            var action = $(this).data('loai');
+            var mahd = $(this).data('id');
+            console.log(mahd);
+            if (action=='suahoatdong')
+                 suahoatdong(mahd, json);
+        })
     }
 
     /*    danh sach dang ki*/
@@ -696,9 +837,6 @@
                 }
 
                 $('#ds_sinhvien').html(noidung_ds_cty_html); //gán html vào thân dialog
-               
-
-
               
                
             });
@@ -762,57 +900,57 @@
     }
 
     /*  Lua chon danh sach kieu gi*/
-    function select_list() {
-        var dialog_list_company = $.confirm({
-            title: "MOI BAN LUA CHON",
-            content:
-                `<button class="btn btn-outline-info" id="btn_sinhvien" style="margin-bottom:10px;"><i class="fa-solid fa-user"></i>Danh sách sinh viên </button><br>` +
-                `<button class="btn btn-outline-success " id="btn_hoat" style="margin-bottom:10px;"><i class="fa-solid fa-briefcase"></i> Danh sách hoạt động </button><br>` +
-                `<button class="btn btn-outline-warning " id="btn_dangki" style="margin-bottom:10px;"><i class="fa-solid fa-address-card"></i> Danh sách hoạt động đăng kí </button><br>` +
-                `<button class="btn btn-outline-primary " id="btn_baoluu" style="margin-bottom:10px;"><i class="fa-solid fa-user-nurse"></i> Danh sách sinh viên bảo lưu </button>`,
+    //function select_list() {
+    //    var dialog_list_company = $.confirm({
+    //        title: "MOI BAN LUA CHON",
+    //        content:
+    //            `<button class="btn btn-outline-info" id="btn_sinhvien" style="margin-bottom:10px;"><i class="fa-solid fa-user"></i>Danh sách sinh viên </button><br>` +
+    //            `<button class="btn btn-outline-success " id="btn_hoat" style="margin-bottom:10px;"><i class="fa-solid fa-briefcase"></i> Danh sách hoạt động </button><br>` +
+    //            `<button class="btn btn-outline-warning " id="btn_dangki" style="margin-bottom:10px;"><i class="fa-solid fa-address-card"></i> Danh sách hoạt động đăng kí </button><br>` +
+    //            `<button class="btn btn-outline-primary " id="btn_baoluu" style="margin-bottom:10px;"><i class="fa-solid fa-user-nurse"></i> Danh sách sinh viên bảo lưu </button>`,
 
 
-            onContentReady: function () {
-                /*Danh sach sinh vien*/
-                $('#btn_sinhvien').click(function () {
-                    dialog_list_company.close();
-                    $('#sinhvien').html(function () {
-                        list_sinhvien();
-                    });
-                });
-                /*Danh sach hoat dong*/
-                $('#btn_hoat').click(function () {
-                    dialog_list_company.close();
-                    $('#sinhvien').html(function () {
-                        list_hoat();
-                    });
-                });
+    //        onContentReady: function () {
+    //            /*Danh sach sinh vien*/
+    //            $('#btn_sinhvien').click(function () {
+    //                dialog_list_company.close();
+    //                $('#sinhvien').html(function () {
+    //                    list_sinhvien();
+    //                });
+    //            });
+    //            /*Danh sach hoat dong*/
+    //            $('#btn_hoat').click(function () {
+    //                dialog_list_company.close();
+    //                $('#sinhvien').html(function () {
+    //                    list_hoat();
+    //                });
+    //            });
 
-                /*Danh sach dang ki*/
-                $('#btn_dangki').click(function () {
-                    dialog_list_company.close();
-                    $('#sinhvien').html(function () {
-                        list_dangki();
-                    });
-                });
-             /*   Danh sach sinh vien bao luu */
-                $('#btn_baoluu').click(function () {
-                    dialog_list_company.close();
-                    $('#sinhvien').html(function () {
-                        list_baoluu();
-                    });
-                });
-            }
-        });
-    }
+    //            /*Danh sach dang ki*/
+    //            $('#btn_dangki').click(function () {
+    //                dialog_list_company.close();
+    //                $('#sinhvien').html(function () {
+    //                    list_dangki();
+    //                });
+    //            });
+    //         /*   Danh sach sinh vien bao luu */
+    //            $('#btn_baoluu').click(function () {
+    //                dialog_list_company.close();
+    //                $('#sinhvien').html(function () {
+    //                    list_baoluu();
+    //                });
+    //            });
+               
+    //        }
+    //    });
+    //}
    
-
+     list_hoat();
     $('#btn-login').click(function () {
         list_login();
     });
-    $('#btn-list').click(function () {
-        select_list();
-    });
+  
+
     $('#btn-logout').click(function () {
         quyen = 0; // Đặt quyền về giá trị mặc định hoặc giá trị bạn mong muốn
         dalogin = false;

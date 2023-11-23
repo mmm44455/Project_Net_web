@@ -6,14 +6,63 @@
 html {
     font-family: "Raleway", sans-serif;
 }
+.header-slider-container {
+    position: relative;
+}
 
+header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 10; /* Đặt z-index cao hơn để header nằm trên slider */
+}
 
+/* CSS for the slider container */
 .slider {
     height: 600px;
-    background-image: url(/icon/img/z4857424446438_d1b1f8ed655d447795a80a7ae12ecdcb.jpg);
-    background-repeat:no-repeat;
+    position: relative;
+    overflow: hidden;
+  
+}
+
+.slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 1.5s ease-in-out;
+    background-repeat: no-repeat;
     background-size: 100% 100%;
 }
+
+    .slide.active {
+        opacity: 1;
+        z-index: 1;
+    }
+
+    .slide img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+@keyframes fade {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+
+
+
+
 .icon {
     padding: 20px 0;
     text-align: center;

@@ -14,6 +14,7 @@
     <script src="accset/codenet.js"></script>
 </head>
 <body>
+
     <header>
         <nav  >
             <div class="logo" style="padding-left:20px;">
@@ -24,12 +25,10 @@
             </div>
 
 
-            <div style="display: flex;">
-                <p id="nameid" style="display: none; color: whitesmoke;padding: 10px;margin-top:10px;" class="col-auto m-lg-auto">Xin chào user</p>
-                <p id="nameid1" style="display: none; color: whitesmoke;padding: 10px;margin-top:10px;" class="col-auto m-lg-auto">Xin chào <div id="username"> </div></p>
-                <p id="nameid2" style="display: none; color: whitesmoke;padding: 10px;margin-top:10px;" class="col-auto m-lg-auto">Xin chào admin</p>
-                <button class="btn btn-primary col-auto m-lg-auto" id="btn-login" style="margin-right:10px;"> <i class="fas fa-sign-in-alt"></i> Login</button>
-                <button class="btn btn-primary col-auto m-lg-auto" id="btn-logout" style="margin-right:10px; display:none;"> Logout  <i class="fas fa-sign-out-alt"></i></button>
+            <div style="display: flex;">      
+                <p id="nameid" style="display: none; color: whitesmoke;padding: 10px;margin-top:10px;" class="col-auto m-lg-auto">Xin chào <i><span id="role"></span></i>,<b><span id="username"></span></b> </p>
+                <button class="btn btn-primary col-auto " id="btn-login" style="margin-right:10px;"> <i class="fas fa-sign-in-alt"></i> Login</button>
+                <button class="btn btn-primary col-auto " id="btn-logout" style="margin-right:10px; display:none;"> Logout  <i class="fas fa-sign-out-alt"></i></button>
             </div>
                
           
@@ -37,10 +36,13 @@
          
         </nav>
     </header>
-    <div class="slider"></div>
+    <div class="slider">
+      
+    </div>
     <div class="main">
-        <button class="btn btn-primary" style="margin-left:10px;" id="btn-list"> <i class="fas fa-list"></i> DANH SÁCH</button>
-        <button class="btn btn-primary" style="margin-left:10px;" id="btn-hd">TÌM KIẾM</button>
+        <button class="btn btn-primary" style="margin-left:10px;display:none;" id="btn-list"> <i class="fas fa-list"></i> DANH SÁCH SINH VIEN</button><br />
+        <button class="btn btn-primary" style="margin-t:10px;display:none;" id="btn-hd"> <i class="fas fa-list"></i> DANH SÁCH HOAT DONG</button><br />
+ 
         <div id="sinhvien">
             <div class="list" id="ds_sinhvien" style="padding: 20px"></div>
         </div>
@@ -53,5 +55,8 @@
             <p style="margin-top:20px">Powered by Nguyễn Duy Cao </p>
         </div>
     </footer>
+
+
+    <script src="accset/index.js"></script>
 </body>
 </html>

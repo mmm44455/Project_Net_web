@@ -97,10 +97,36 @@ namespace QLNK_NET
         void Xulyhoatdong(string action)
         {
             SqlServer db = new SqlServer();
-            SqlCommand cm = db.GetCmd("SP_hoatdong", action);
+            SqlCommand cm = db.GetCmd("hoatdongngoaikhoa", action);
+            switch (action)
+            {
+                case "search_hd":
+                cm.Parameters.Add("@search ", SqlDbType.NVarChar, 50).Value = Request["search"];
+                    break;
+
+                case "themhoatdong":
+                    cm.Parameters.Add("@mahd", SqlDbType.NVarChar, 30).Value = Request["mahd"];
+                    cm.Parameters.Add("@tenhd", SqlDbType.NVarChar, 50).Value = Request["tenhd"];
+                    cm.Parameters.Add("@diadiem", SqlDbType.NVarChar, 50).Value = Request["diadiem"];
+                    cm.Parameters.Add("@soluong", SqlDbType.Int).Value = Request["soluong"];
+                    cm.Parameters.Add("@diem", SqlDbType.Int).Value = Request["diem"];
+                    cm.Parameters.Add("@nguoitao", SqlDbType.NVarChar, 50).Value = Request["nguoitao"];
+                    cm.Parameters.Add("@tochuc", SqlDbType.NVarChar, 50).Value = Request["tochuc"];
+                    cm.Parameters.Add("@ngaybatdau", SqlDbType.NVarChar, 50).Value = Request["ngaybatdau"];
+                    cm.Parameters.Add("@ngayketthuc", SqlDbType.NVarChar, 50).Value = Request["ngayketthuc"];
+                    break;
+                case "update_hd":
+                    cm.Parameters.Add("@tenhd", SqlDbType.NVarChar, 50).Value = Request["tenhd"];
+                   
+                    break;
+            }
+        
             string json = (string)db.Scalar(cm); //thuc thi SqlCommand cm này để thu về jsonhd
             Response.Write(json);
+
         }
+
+     
 
         void update_ms(string action)
         {
@@ -130,38 +156,27 @@ namespace QLNK_NET
             Response.Write(json);
         }
 
-        void Login(string action)
-        {
-            SqlServer db = new SqlServer();
-            SqlCommand cm = db.GetCmd("Login_web", action);
-            switch (action)
-            {
-                //2 loại này truyền 5 tham số chung
-                case "themuser":
-                    cm.Parameters.Add("@username", SqlDbType.NVarChar, 50).Value = Request["user"];
-                    cm.Parameters.Add("@pass", SqlDbType.NVarChar, 50).Value = Request["pass"];
-                    cm.Parameters.Add("@@role_id", SqlDbType.NVarChar, 20).Value = Request["chucvu"];
-                    break;
-
-            }
-            switch (action)
-            {
-                case "themuser":
-                case "xoauser":
-                    cm.Parameters.Add("@id", SqlDbType.NVarChar, 30).Value = Request["id"];
-                    break;
-            }
-
-            string json = (string)db.Scalar(cm); //thuc thi SqlCommand cm này để thu về jsonhd
-            Response.Write(json);
-        }
+     
 
         void Dangnhap(string action)
         {
             SqlServer db = new SqlServer();
-            SqlCommand cm = db.GetCmd("Login_web", action);
+            SqlCommand cm = db.GetCmd("Login", action);
+            cm.Parameters.Add("@user", SqlDbType.NVarChar, 50).Value = Request["name"];
+            cm.Parameters.Add("@pass", SqlDbType.NVarChar, 30).Value = Request["pass"];
             string json = (string)db.Scalar(cm); //thuc thi SqlCommand cm này để thu về jsonhd
             Response.Write(json);
+        }
+
+
+        void search_sv(string action)
+        {
+            SqlServer db = new SqlServer();
+            SqlCommand cm = db.GetCmd("Thongtinsv", action);
+            cm.Parameters.Add("@search", SqlDbType.NVarChar, 30).Value = Request["search"];
+            string json = (string)db.Scalar(cm); //thuc thi SqlCommand cm này để thu về jsonhd
+            Response.Write(json);
+
         }
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -188,6 +203,9 @@ namespace QLNK_NET
                     break;
                 //Danh sach hoat dong
                 case "list_hoatdong":
+                case "search_hd":
+                case "themhoatdong":
+                case "update_hd":
                     Xulyhoatdong(action); 
                     break;
                 // update Mssv
@@ -205,15 +223,13 @@ namespace QLNK_NET
                     break;
 
            
-                case "themuser":
-                case "xoauser":
-                case " suauser":
-                    Login(action);
-                    break;
-
-                case "dangnhap":
+                case "login":
                     Dangnhap(action);
                     break;
+
+                case "search_sv":
+                    search_sv(action);
+                        break;
             }
         }
     }
