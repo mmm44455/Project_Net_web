@@ -27,6 +27,13 @@ namespace QLNK_NET
                     cm.Parameters.Add("@ngaysinh", SqlDbType.NVarChar,20).Value = Request["ngaysinh"];
                     cm.Parameters.Add("@tinhtrang", SqlDbType.NVarChar, 10).Value = Request["tinhtrang"];
                     cm.Parameters.Add("@matkhau", SqlDbType.NVarChar, 50).Value = Request["matkhau"];
+                    cm.Parameters.Add("@lop", SqlDbType.NVarChar, 50).Value = Request["lop"];
+                    cm.Parameters.Add("@khoa", SqlDbType.NVarChar, 50).Value = Request["khoa"];
+                    break;
+                case "userupdate_sv":
+                    cm.Parameters.Add("@hoten", SqlDbType.NVarChar, 50).Value = Request["hoten"];
+                    cm.Parameters.Add("@diachi", SqlDbType.NVarChar, 50).Value = Request["diachi"];
+                    cm.Parameters.Add("@ngaysinh", SqlDbType.NVarChar, 20).Value = Request["ngaysinh"];
                     break;
 
             }
@@ -100,6 +107,7 @@ namespace QLNK_NET
             SqlCommand cm = db.GetCmd("hoatdongngoaikhoa", action);
             switch (action)
             {
+                
                 case "search_hd":
                 cm.Parameters.Add("@search ", SqlDbType.NVarChar, 50).Value = Request["search"];
                     break;
@@ -162,9 +170,26 @@ namespace QLNK_NET
         {
             SqlServer db = new SqlServer();
             SqlCommand cm = db.GetCmd("Login", action);
-            cm.Parameters.Add("@user", SqlDbType.NVarChar, 50).Value = Request["name"];
+            switch (action)
+            {
+                case "login":
+                case "user_sv":
+             cm.Parameters.Add("@user", SqlDbType.NVarChar, 50).Value = Request["name"];
             cm.Parameters.Add("@pass", SqlDbType.NVarChar, 30).Value = Request["pass"];
-            string json = (string)db.Scalar(cm); //thuc thi SqlCommand cm này để thu về jsonhd
+                    break;
+                case "dangkihd":
+                case "delete_user":
+                    cm.Parameters.Add("@user", SqlDbType.NVarChar, 50).Value = Request["name"];
+                    cm.Parameters.Add("@pass", SqlDbType.NVarChar, 30).Value = Request["pass"];
+                    cm.Parameters.Add("@MaHD", SqlDbType.NVarChar, 30).Value = Request["mahd1"];
+                    break;
+                case "hoatdong_user":
+                    cm.Parameters.Add("@user", SqlDbType.NVarChar, 50).Value = Request["name"];
+                    cm.Parameters.Add("@pass", SqlDbType.NVarChar, 30).Value = Request["pass"];
+                    break;
+            }
+            string json = (string)db.Scalar(cm).ToString(); //thuc thi SqlCommand cm này để thu về jsonhd
+            Console.WriteLine("Result: " + json);
             Response.Write(json);
         }
 
@@ -187,6 +212,7 @@ namespace QLNK_NET
                 case "list_sinhvien":
                 case "update_sinhvien":
                 case "delete_sinhvien":
+                case "userupdate_sv":
                     xuly_thongtin(action);
                     break;
                 // Them 1 truong sinh vien
@@ -224,6 +250,10 @@ namespace QLNK_NET
 
            
                 case "login":
+                case "user_sv":
+                case "dangkihd":
+                case "hoatdong_user":
+                case "delete_user":
                     Dangnhap(action);
                     break;
 
