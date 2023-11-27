@@ -64,13 +64,15 @@ header {
     flex-direction:row;
 }
 .button{
-    width:18%;
+    width:25%;
 }
 #sinhvien {
-    width: 82%;
+    width: 75%;
 }
 
-
+.login_list{
+    padding:20px;
+}
 .icon {
     padding: 20px 0;
     text-align: center;

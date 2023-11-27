@@ -2,46 +2,46 @@
     const api = '/api.aspx';
 
     var isAddHdVisible = false;
-   /* Tim hoat dong da quet theo thoi gian*/
+    /* Tim hoat dong da quet theo thoi gian*/
     function list_search_ngay(mssv) {
         originalConfirm = $.confirm;
         var dialog_list_ngay = $.confirm({
             title: "Nhập  thời gian ",
-            content: `Ngày đầu :  <input type="date" name="name"  id="ngay_dau" style=" margin: 0 10px 10px; padding: 0 10px;" /><br>` +
-                `Ngày cuối :  <input type="date" name="name"  id="ngay_cuoi" style=" margin: 0 10px 10px; padding: 0 10px;" />`+
-                    `<div id="hoten"></div>` +
-                `<div id="tongdiem"></div>`,   
+            content: `Ngày đầu :  <input type="datetime-local" name="name"  id="ngay_dau" style=" margin: 0 10px 10px; padding: 0 10px;" /><br>` +
+                `Ngày cuối :  <input type="datetime-local" name="name"  id="ngay_cuoi" style=" margin: 0 10px 10px; padding: 0 10px;" />` +
+                `<div id="hoten"></div>` +
+                `<div id="tongdiem"></div>`,
             columnClass: 'small',
             buttons: {
                 Gửi: {
-                    text:'<i class="fa-regular fa-paper-plane"></i> Gửi đi ',
+                    text: '<i class="fa-regular fa-paper-plane"></i> Gửi đi ',
                     btnClass: 'btn-blue',
                     action: function () {
                         var ngay_bat_dau = $('#ngay_dau').val();
                         var ngay_ket_thuc = $('#ngay_cuoi').val();
+                        ngay_bat_dau = ngay_bat_dau.replace("T", " ");
+                        ngay_ket_thuc = ngay_ket_thuc.replace("T", " ");
                         var data_gui = {
-                            action: 'list_ngayquet',
+                            action: 'list_search',
                             ngay1: ngay_bat_dau,
                             ngay2: ngay_ket_thuc,
                             mssv: mssv
                         }
+                        console.log(data_gui);
                         $.post(api, data_gui, function (data) {
                             console.log(data);
                             var json = JSON.parse(data);
                             if (json.ok) {
-                                        var tongDiem = 0;
-                                        for (var hd of json.data) {
-                                            if (hd.daquet == 1) {
-                                                tongDiem = tongDiem + parseInt(hd.diem);
-                                            }
-                                        }
-                                $('#hoten').html(` Tên  : ${ hd.hoten }`);
-                                $('#tongdiem').html(` Tổng điểm  : ${tongDiem}`);
-                            
+                                for (var hd of json.data) {
+                                  
+                                }
+                                $('#hoten').html(` Tên  : ${hd.hoten}`);
+                                $('#tongdiem').html(` Tổng điểm  : ${hd.tong}`);
+
 
                             } else {
                                 alert(json.msg);
-                             
+
                             }
                         });
                         return false;
@@ -55,22 +55,22 @@
                     }
                 }
             },
-            
+
         });
-       
+
     }
 
-  /*  Danh sach cac hoat dong da quet va tong diem */
+    /*  Danh sach cac hoat dong da quet va tong diem */
     function list_hoatdong(mssv) {
         var dialog_list_company = $.confirm({
             title: "Danh sach hoat dong",
             content: `<div id="ds_sinh_vien">loading...</div>` +
-                `<div id="tongdiem">Tong diem:</div>`,
-            columnClass: 'extra-large',
+                `<div id="tongdiem">loading....</div>`,
+            columnClass: 'large',
             buttons: {
                 search: {
                     text: '<i class="fa-solid fa-magnifying-glass"></i> Tìm kiếm ',
-                    btnClass: 'btn-blue', 
+                    btnClass: 'btn-blue',
                     action: function () {
                         list_search_ngay(mssv);
                         dialogClosed = true;
@@ -81,13 +81,13 @@
                     text: '<i class="fa-solid fa-xmark"></i> Đóng',
                     btnClass: 'btn-danger',
                 },
-               
+
             },
-           
+
             onContentReady: function () {
                 $.post(api,
                     {
-                        action: 'list_hoatdong',
+                        action: 'list_ngoaikhoa',
                         mssv: mssv
 
                     },
@@ -100,29 +100,26 @@
                             noidung_ds_cty_html += `<table class="table table-striped table-responsive">
               <thead class="table table-dark">
               <tr>
-              <th >STT</th>
-
-                <th >MaHD</th>
-                 <th >MSSV</th>
-                 <th style="width: 24%;">DANG KI HOAT DONG</th>
-                <th style="width: 20%;">TEN HD</th>
-       
-                <th >DIEM</th>
+              <th >STT</th>  
+                <th >Họ tên  </th>
+                <th >Mã hoạt động</th>
+                 <th >Tên hoạt động </th>
+                  <th >Ngày hoàn thành </th>
+                <th >Điểm </th>
            
               </tr>
               </thead><tbody>`;
                             var Stt = 1;
-                            var tongDiem = 0;
                             //duyet json -> noidung_ds_cty_html xịn
                             for (var hd of json.data) {
 
                                 noidung_ds_cty_html += `
                 <tr >
                  <td>${Stt++}</td>
-                <td>${hd.mahd}</td>
-                 <td>${hd.ngaybatdau}</td>
-                <td>${hd.ten}</td>
-                  <td>${hd.mssv}</td>
+                <td>${hd.hoten}</td>
+                 <td>${hd.mahd}</td>
+                <td>${hd.tenhd}</td>
+                 <td>${hd.ngayquet}</td>
                 <td>${hd.diem}</td>
               </tr>`;
                             }
@@ -132,13 +129,40 @@
                             noidung_ds_cty_html = "không có dữ liệu";
                         }
                         $('#ds_sinh_vien').html(noidung_ds_cty_html);
-                        $('#tongdiem').html("Tong diem: " + (tongDiem));
-                      
+
                     }
                 )
-              
+
+                $.post(api,
+                    {
+                        action: 'list_tong',
+                        mssv: mssv
+
+                    },
+                    function (data) {
+                        console.log(data);
+                        var json = JSON.parse(data);
+                        var noidung_ds_cty_html = "";
+                        if (json.ok) {
+                            dialog_list_company.open();
+                            noidung_ds_cty_html = `Tổng điểm :`;
+                            //duyet json -> noidung_ds_cty_html xịn
+                            for (var hd of json.data) {
+
+                                noidung_ds_cty_html += `<span>${hd.tong}</span>`;
+                            }
+                           
+                        } else {
+
+                            noidung_ds_cty_html = "không có dữ liệu";
+                        }
+                        $('#tongdiem').html(noidung_ds_cty_html);
+
+                    }
+                )
+
             }
-            
+
         });
     }
 
@@ -147,24 +171,32 @@
 
         var sv;
         for (var item of json.data) {
-           
+
             if (item.MSSV == id) {
                 sv = item; console.log(sv);
                 break;
             }
-        } 
+        }
 
         var content = `NAME: <input type=text id="edit-name" value="${sv.hoten}" style="margin-bottom:10px; padding:4px; wigth:100%;"> <br>
                         ADDRESS: <input type=text id="edit-address" value="${sv.diachi}" style="margin-bottom:10px; padding:4px; wigth:100%;"><br>
                          DATE : <input type=date id="edit-ngay" value="${sv.ngaysinh}" style="margin-bottom:10px; padding:4px; wigth:100%;"><br>
                          TINH TRANG HOC TAP : <input type=text id="edit-buit" value="${sv.tinhtrang}" style="margin-bottom:10px; padding:4px; wigth:100%;"><br>
                              LOP : <input id="nhap-lop"  value="${sv.lop}" style="margin-bottom:10px; padding:4px; wigth:100%;"><br>
-                         KHOA : <input id="nhap-khoa"  value="${sv.khoa}" style="margin-bottom:10px; padding:4px; wigth:100%;"><br>
+                       KHOA :<select id="nhap-khoa" value="${sv.khoa}" style="margin-bottom:10px; wigth:100%;">
+            <option>điện tử</option>
+            <option>điện</option>
+              <option>Xây dựng và môi trường</option>
+            <option>Quốc tế</option>
+              <option>Cơ khí</option>
+            <option>Công nghệ cơ điện và điện tử</option>
+              <option>Kỹ thuật ô tô và máy động lực</option>
+        </select><br>
                         PASSWORD sv.net :  <input type=pass id="edit-pass" class="phânquyentt"  value="${sv.matkhau}" style="margin-bottom:10px; padding:4px; wigth:100%;"><br> `
         var dialog_edit = $.confirm({
             title: 'Update sinh vien ',
             content: content,
-          
+
             buttons: {
                 save: {
                     text: 'Lưu thông tin',
@@ -186,11 +218,11 @@
                             var json = JSON.parse(data);
                             console.log(json);
                             if (json.ok) {
-                              
-                                    list_sinhvien();
-                                    $('#edit-pass').show();
 
-                               
+                                list_sinhvien();
+                                $('#edit-pass').show();
+
+
                             } else {
                                 alert(json.msg)
                             }
@@ -216,7 +248,7 @@
                 console.log(sv);
                 break;
             }
-        } 
+        }
         var dialog_xoa = $.confirm({
             title: `Xác nhận xóa sinh vien  ${sv.hoten}`,
             content: `Xác nhận xóa nhé????`,
@@ -235,9 +267,9 @@
                                 dialog_xoa.close();
                                 var rowToDelete = $(this).closest('tr');
                                 console.log(rowToDelete); // Kiểm tra giá trị rowToDelete
-                                rowToDelete.hide(); 
+                                rowToDelete.hide();
                                 list_sinhvien();
-                               
+
                             } else {
                                 alert(json.msg) // lỗi gì ở trên lo, ta cứ show ra thôi
                             }
@@ -249,12 +281,12 @@
                 }
             }
         })
-    }  
+    }
 
     /* Them 1 sinh vien moi */
     function add_sinhvien() {
-        var content = 
-   `
+        var content =
+            `
      MSSV: <input id="nhap-MSSV" style="margin-bottom:10px; padding:4px; wigth:100%;"><br>
      Name: <input id="nhap-name" style="margin-bottom:10px; padding:4px; wigth:100%;"><br>
     Address: <input id="nhap-address" style="margin-bottom:10px; padding:4px; wigth:100%;"><br>
@@ -264,7 +296,15 @@
             <option value="1">Không học nữa</option>
         </select><br>
     LOP : <input id="nhap-lop" style="margin-bottom:10px; padding:4px; wigth:100%;"><br>
-    KHOA : <input id="nhap-khoa" style="margin-bottom:10px; padding:4px; wigth:100%;"><br>
+    KHOA :<select id="nhap-khoa" style="margin-bottom:10px; wigth:100%;">
+            <option>Điện tử</option>
+            <option>điện</option>
+              <option>Xây dựng và môi trường</option>
+            <option>Quốc tế</option>
+              <option>Cơ khí</option>
+            <option>Công nghệ cơ điện và điện tử</option>
+              <option>Kỹ thuật ô tô và máy động lực</option>
+        </select><br>
 
     Password: <input id="nhap-pass" style="margin-bottom:10px; padding:4px; wigth:100%;"><br>
     `
@@ -272,13 +312,13 @@
         var dialog_add = $.confirm({
             title: 'Thêm mới 1 sinh viên ',
             content: content,
-            columnClass:'small',
+            columnClass: 'small',
             buttons: {
                 save: {
                     text: 'Thêm sinh viên vào DB ',
-                    btnClass:'btn btn-outline-danger',
+                    btnClass: 'btn btn-outline-danger',
                     action: function () {
-                        
+
                         var tinhtrang_bit = $('#nhap-hoc').val();
                         var data_gui_di = {
                             action: 'into_sinhvien',
@@ -305,7 +345,7 @@
                 },
                 Close: {
                     text: "Trở về ",
-                    btnClass:'btn btn-outline-primary'
+                    btnClass: 'btn btn-outline-primary'
                 }
             }
         });
@@ -361,7 +401,6 @@
         });
     }
 
-
     /*    cap nhat sinh vien*/
     function capnhat_sv(json) {
         var noidung_ds_cty_html = "";
@@ -385,7 +424,7 @@
     </div>
 
     `;
-           
+
             //duyet json -> noidung_ds_cty_html xịn
             for (var sv of json.data) {
 
@@ -403,52 +442,53 @@
                     <div class="student-details">
                        <p class="student-info"><span>MSSV:</span> ${sv.MSSV}<span style="margin-left :10px;"> Họ Tên:</span> ${sv.hoten}</p>
                         <p class="student-info"><span>Địa chỉ:</span> ${sv.diachi} <span style="margin-left:10px;"> Ngày sinh:</span> ${sv.ngaysinh}</p>
-                        <p class="student-info"><span >Lớp:</span> ${sv.lop }<span style="margin-left:10px;"> Khoa:</span> ${sv.khoa}</p>
+                        <p class="student-info"><span >Lớp:</span> ${sv.lop}<span style="margin-left:10px;"> Khoa:</span> ${sv.khoa}</p>
                          <p class="student-info"><span>Tình trạng:</span> ${tinhtrangChuoi} <span  style="margin-left:10px;"> Mật khẩu::</span> ${sv.matkhau}</p>
                         <p>${list_hoat_dong}</p>
                         <p>${sua}</p>
                     </div>
                 </div>`;
-                console.log(noidung_ds_cty_html);
+
+
             }
-         
+
         } else {
             noidung_ds_cty_html = "không có dữ liệu";
         }
 
-       
-            $('#ds_sinhvien').html(noidung_ds_cty_html);
-            $('#ds_sinhvien button[data-action="list_hoatdong"]').click(function () {
-                var mssv = $(this).data('mssv');
-                list_hoatdong(mssv);
-            });
-            $('.nut_xoa_sua').click(function () {
-                var action = $(this).data('loai');
-                var id = $(this).data('id');
-                if (action == 'list_sua') {
-                    list_sua(id, json);
-                }
-                else if (action == 'list_xoa') {
-                    $(this).closest('tr').remove();
-                    list_xoa(id, json);
-                }
-            });
 
-            $('.add_sinhvien ').click(function () {
-                add_sinhvien();
-            });
+        $('#ds_sinhvien').html(noidung_ds_cty_html);
+        $('#ds_sinhvien button[data-action="list_hoatdong"]').click(function () {
+            var mssv = $(this).data('mssv');
+            list_hoatdong(mssv);
+        });
+        $('.nut_xoa_sua').click(function () {
+            var action = $(this).data('loai');
+            var id = $(this).data('id');
+            if (action == 'list_sua') {
+                list_sua(id, json);
+            }
+            else if (action == 'list_xoa') {
+                $(this).closest('tr').remove();
+                list_xoa(id, json);
+            }
+        });
 
-            $('.restart ').click(function () {
-                list_sinhvien();
-            })
-            $('.update_mssv ').click(function () {
-                var mssv = $(this).data('id');
-                list_update_mssv(mssv);
-            })
+        $('.add_sinhvien ').click(function () {
+            add_sinhvien();
+        });
 
-            $('.search ').click(function () {
-                search_SV();
-            })
+        $('.restart ').click(function () {
+            list_sinhvien();
+        })
+        $('.update_mssv ').click(function () {
+            var mssv = $(this).data('id');
+            list_update_mssv(mssv);
+        })
+
+        $('.search ').click(function () {
+            search_SV();
+        })
 
         $('.student-block').css({
             'display': 'flex',
@@ -510,7 +550,7 @@
             var filter2 = $("#filter2-container");
 
             // Xóa tất cả các option/input trong filter2
-            filter2.empty(); 
+            filter2.empty();
             if (selectedValue === "lop") {
                 var input = $("<input>").attr({
                     type: "text",
@@ -548,7 +588,7 @@
                 });
                 switch (selectedValue) {
                     case "khoa":
-                        var dataForFilter2 = ["điện tử", "điện", "Xây dựng và môi trường", "Quốc tế", "Cơ khí", "Công nghệ cơ điện và điện tử", "Kỹ thuật ô tô và máy động lực"];
+                        var dataForFilter2 = ["Điện tử", "điện", "Xây dựng và môi trường", "Quốc tế", "Cơ khí", "Công nghệ cơ điện và điện tử", "Kỹ thuật ô tô và máy động lực"];
                         break;
                 }
 
@@ -565,27 +605,7 @@
 
     }
 
-   
-
-
- /*   tim kiem trong danh sach sinh vien*/
-    function search_SV() {
-        var data_gui = {
-            action: 'search_sv',
-            search: $('#searchSV').val()
-        }
-        $.post(api, data_gui, function (data) {
-            var json = JSON.parse(data);
-            console.log(json);
-            if (json.ok) {
-                var json = JSON.parse(data);
-                capnhat_sv(json);
-            } else {
-                alert(json.msg)
-            }
-        });
-    }
-  /*Danh sach sinh vien co trong database*/
+    /*Danh sach sinh vien co trong database*/
     function list_sinhvien() {
         $.post(api,
             {
@@ -597,6 +617,7 @@
                 var json = JSON.parse(data);
                 capnhat_sv(json);
             });
+
     }
 
     var role = " ";
@@ -610,33 +631,33 @@
         } else {
             var data_gui_di = {
                 action: 'login',
-                name: name, 
+                name: name,
                 pass: pass
             };
 
             $.post(api, data_gui_di, function (data) {
-              
-                    var json = JSON.parse(data);
+
+                var json = JSON.parse(data);
 
                 if (json.ok) {
                     console.log(data);
 
-                 role = json.role === 2 ? "admin" : "sinh viên ";
+                    role = json.role === 2 ? "admin" : "sinh viên ";
                     $.alert(`Đăng nhập thành công với quyền ${role}`);
-                   
+
                     if (json.role === 2) {
                         list_hoat();
                         $('#btn-hd').show();
                         $('#btn-hd').click(function () {
                             isAddHdVisible = true;
-                            list_hoat(name,pass);
+                            list_hoat(name, pass);
                         })
                         $('#btn-list').show();
                         $('#btn-list').click(function () {
                             isAddHdVisible = false;
-                           list_sinhvien();
+                            list_sinhvien();
                         })
-                        
+
                     } else if (json.role === 1) {
                         list_hoat();
                         $('#btn-sv').show();
@@ -645,7 +666,7 @@
                             list_hoat(name, pass);
                         })
                         $('#btn-sv').click(function () {
-                            userSV(name,pass);
+                            userSV(name, pass);
                         })
                     }
                     $('#btn-login').hide();
@@ -653,9 +674,9 @@
                     $('#btn-logout').show();
                     $('#username').html(name);
                     $('#role').html(role);
-                        } else {
-                            alert("Đăng nhập không thành công");
-                        }
+                } else {
+                    alert("Đăng nhập không thành công");
+                }
 
             });
         }
@@ -665,7 +686,7 @@
     function list_login() {
         var dialog_list_company = $.confirm({
             title: " ĐĂNG NHẬP TÀI KHOẢN ",
-            class:'confirm-login',
+            class: 'confirm-login',
             content:
                 `Username <i class="fa-solid fa-user" class = "icon-fa" style="color: #27ecab;"></i> ` + `<input type="text" id="name" class="custom-input"/>` + `<br>` +
                 `Password <i class="fa-solid fa-lock" class = "icon-fa" style="color: #1ecc92;"></i>` + `<input type="password" id="pass" class="custom-input"/>`,
@@ -687,48 +708,30 @@
 
             },
             onContentReady: function () {
-              
+
             }
 
         });
 
     }
 
-    
+
     /* danh sach hoat dong*/
-    function list_hoat(name,pass) {
+    function list_hoat(name, pass) {
         $.post(api,
             {
-                action: 'list_hoatdong'
+                action: 'list_hd'
             },
             function (data) {
                 //alert(data)
                 console.log("Raw JSON data:", data);
 
                 var json = JSON.parse(data);
-                capnhat_hd(json,name,pass);
+                capnhat_hd(json, name, pass);
             });
     }
 
-    /*    tim kiem hoat dong*/
-    function search_hd() {
-        var data_gui = {
-            action: 'search_hd',
-            search: $('#searchHD').val()
-        }
-        $.post(api, data_gui, function (data) {
-            var json = JSON.parse(data);
-            console.log(json);
-            if (json.ok) {
-                var json = JSON.parse(data);
-                capnhat_hd(json);
-            } else {
-                alert(json.msg)
-            }
-        })
-    }
-
-    function themhoatdong() { 
+    function themhoatdong() {
         var content =
             `
      MAHD: <input id="nhap-MSSV" style="margin-bottom:10px; padding:4px; wigth:100%;"><br>
@@ -762,7 +765,7 @@
                             diem: $('#nhap-diem').val(),
                             tochuc: $('#nhap-tochuc').val(),
                             nguoitao: $('#nhap-nguoitao').val()
-                          
+
                         }
                         //console.log(data_gui_di);
                         $.post(api, data_gui_di, function (data) {
@@ -791,9 +794,9 @@
         for (var item of json.data) {
             if (item.mahd == mahd) {
                 hd = item;
-             console.log(hd);
+                console.log(hd);
                 break;
-            }   
+            }
         }
 
         var content = `TENHD: <input type=text id="edit-name" value="${hd.ten}" style="margin-bottom:10px; padding:4px; wigth:100%;"> <br>
@@ -811,7 +814,7 @@
                             action: 'update_hd',
                             id: mahd,
                             tenhd: $('#edit-name').val()
-                            
+
                         }
 
                         $.post(api, data_gui, function (data) {
@@ -832,14 +835,14 @@
     }
 
     /* cap nhat hoat dong*/
-    function capnhat_hd(json,name,pass) {
+    function capnhat_hd(json, name, pass) {
         var noidung_ds_cty_html = "";
         if (json.ok) {
             noidung_ds_cty_html += `
-             <button class="btn btn-outline-info add_hd " data-action="them_hd" style="margin-bottom:10px;display:none;"><i class="fa-solid fa-plus"></i> Tạo hoạt động </button>
+             <button class="btn btn-outline-info add_hd " data-action="them_hd" style="margin-bottom:10px;"><i class="fa-solid fa-plus"></i> Tạo hoạt động </button><br>
              <select id="filter1"  style="padding: 5px ; width: 45%;border-radius:15px;margin-bottom:10px;">
     <option value="ten">Tên</option>
-    <option value="khoa">Tổ chức </option>
+    <option value="thoigian">Thời gian diễn ra </option>
     <option value="diem">Điểm </option>
      <option value="thang">Tháng</option>
     <option value="lop">Mã hoạt động </option>
@@ -857,24 +860,27 @@
             //duyet json -> noidung_ds_cty_html xịn
             for (var sv of json.data) {
 
-                var uniqueId = `nut_xoa_sua_${sv.mahd}_${name1}_${pass1}`;
-                var sua = `<button class="btn btn-outline-danger nut_xoa_sua dkhd"  
+     
+                var sua = 
+                `<button class="btn btn-outline-danger nut_xoa_sua dkhd"  
                 data-id="${sv.mahd}" data-name="${name1}" data-pass="${pass1}" data-loai="dkhoatdong" style="margin-right:10px;"> <i class="fa-solid fa-pen"></i>Đăng kí hoạt động</button>`;
                 sua += `<button class="btn btn-outline-danger  duyethd"  
                 data-id="${sv.mahd}" data-name="${name1}" data-pass="${pass1}" data-loai="dkhoatdong" style="margin-right:10px;"> <i class="fa-solid fa-pen"></i>Duyệt hoạt động</button>`;
+                sua += `<button class="btn btn-outline-success  xacnhan"  
+                data-id="${sv.mahd}" data-name="${name1}" data-pass="${pass1}" data-loai="dkhoatdong" style="margin-right:10px;"> <i class="fa-solid fa-pen"></i>Xác nhận cộng điểm </button>`;
                 noidung_ds_cty_html += ` 
-                    <div class="student-block" data-ten="${sv.ten}" data - khoa="${sv.trangthai}" data-diem="${sv.diem}" data-lop="${sv.mahd}",data-thang=" ${sv.ngayketthuc}">
+                    <div class="student-block" data-ten="${sv.ten}" data-thoigian="${sv.trangthai}" data-diem="${sv.diem}" data-lop="${sv.mahd}",data-thang=" ${sv.ngayketthuc}">
                         <img src="icon/img/anh3.png" alt="Student Image" class="student-image">
                             <div class="student-details">
-                                <p class="student-info"><span>MAHD:</span> ${sv.mahd}<span style="margin-left :10px;"> TENHD:</span> ${sv.ten}</p>
-                                <p class="student-info"><span>TRANG THAI:</span> ${sv.trangthai} <span style="margin-left:10px;"> NGAY KET THUC:</span> ${sv.ngayketthuc}</p>
-                                <p class="student-info"><span> NGUOI TAO:</span> ${sv.nguoitao}<span style="margin-left:10px;"> SOLUONG:</span> ${sv.diem1}</p>
-                                <p class="student-info"><span>DIA CHI:</span> ${sv.diachi} <span style="margin-left:10px;"> DIEM:</span> ${sv.diem}</p>
-                                <p >${sua}</p>
+                                <p class="student-info"><span>Mã hoạt động :</span> ${sv.mahd}<span style="margin-left :10px;"> Tên hoạt động :</span> ${sv.ten}</p>
+                                <p class="student-info"><span>Thời gian diễn ra :</span> ${sv.trangthai} <span style="margin-left:10px;"> Ngày kết thúc :</span> ${sv.ngayketthuc}</p>
+                                <p class="student-info"><span> Người tạo :</span> ${sv.nguoitao}<span style="margin-left:10px;"> Số lượng :</span> ${sv.diem1}</p>
+                                <p class="student-info"><span>Địa chỉ :</span> ${sv.diachi} <span style="margin-left:10px;"> Điểm :</span> ${sv.diem}</p>
+                                <p>${sua}</p>
                             </div>
                         </div>`;
             }
-     
+          
         } else {
             noidung_ds_cty_html = "không có dữ liệu";
         }
@@ -884,13 +890,15 @@
             $('.add_hd').show();
             $('.dkhd').hide();
             $('.duyethd').show();
-            
+            $('.themhd').show();
+            $('.xacnhan').show();
+
         } else {
             $('.add_hd').hide();
             $('.dkhd').show();
-            $('#them_id').show();
-            $('.them_id2').show();
+            $('.themhd').hide();
             $('.duyethd').hide();
+            $('.xacnhan').hide();
         }
 
 
@@ -901,24 +909,37 @@
             themhoatdong();
         })
         $(document).ready(function () {
+            $('.nut_xoa_sua  ').click(function () {
+                var action = $(this).data('loai');
+                var mahd = $(this).data('id');
+                var user = $(this).data('name');
+                var password = $(this).data('pass');
 
+                if (action == 'dkhoatdong') {
+                    dkhoatdong(mahd, user, password);
+                    localStorage.setItem('dangky_' + mahd, 'true');
+                    $(this).text('Hủy đăng ký').data('loai', 'huyhoatdong');
+                } else if (action == 'huyhoatdong') {
+                    huyhoatdong(mahd, user, password);
+                    $(this).html('<i class="fa-solid fa-pen"></i> Đăng ký hoạt động').data('loai', 'dkhoatdong');
+                }
+
+            })
         })
-        $('.nut_xoa_sua  ').click(function () {
-            var action = $(this).data('loai');
+
+        $('.duyethd ').click(function () {
             var mahd = $(this).data('id');
             var user = $(this).data('name');
             var password = $(this).data('pass');
-            var button = $(this);
-            if (action == 'dkhoatdong') {
-                dkhoatdong(mahd, user, password);
-                localStorage.setItem('dangky_' + mahd, 'true');
-                button.text('Hủy đăng ký').data('loai', 'huyhoatdong');
-            } else if (action == 'huyhoatdong') {
-                huyhoatdong(mahd, user, password);
-                button.html('<i class="fa-solid fa-pen"></i> Đăng ký hoạt động').data('loai', 'dkhoatdong');
-            }
-          
+            duyethoatdong(mahd);
         })
+        $('.xacnhan ').click(function () {
+            var mahd = $(this).data('id');
+            var user = $(this).data('name');
+            var password = $(this).data('pass');
+            xacnhan(mahd);
+        })
+
         $('.student-block').css({
             'display': 'flex',
             'border': '1px solid #ddd',
@@ -963,57 +984,14 @@
                 var filterValue = $(this).val().toLowerCase();
                 var selectedValue = $("#filter1").val();
 
-                if (selectedValue === "thang") {
-                    // Xử lý bộ lọc theo tháng
-                    var selectedMonth = filterValue; // Giả sử giá trị là "YYYY-MM"
-                    $(".student-block ").each(function () {
-                        var rowData;
-
-                        if (selectedValue === "thang") {
-                            rowData = $(this).data("thang");
-                        } else {
-                            rowData = $(this).data(selectedValue);
-                        }
-                        if (rowData !== undefined) {
-                            rowData = rowData.toString().toLowerCase();
-                            if (selectedValue === "thang") {
-                                // Xử lý bộ lọc theo tháng
-                                var rowThang = rowData.substr(0, 7); // Lấy "YYYY-MM" từ giá trị ngày
-                                if (rowThang.includes(filterValue)) {
-                                    $(this).show();
-                                } else {
-                                    $(this).hide();
-                                }
-                            } else {
-                                // Xử lý bộ lọc cho trường hợp khác
-                                if (rowData.includes(filterValue)) {
-                                    $(this).show();
-                                } else {
-                                    $(this).hide();
-                                }
-                            }
-                        } else {
-                            console.error("Không tìm thấy giá trị cho thuộc tính được chọn.");
-                        }
-                    });
-                } else {
-                     $(".student-block").each(function () {
-                    var rowData = $(this).data(selectedValue);
-                    if (rowData !== undefined) {
-                        rowData = rowData.toString().toLowerCase();
-                        if (rowData.includes(filterValue)) {
-                            $(this).show();
-                        } else {
-                            $(this).hide();
-                        }
+                $(".student-block").each(function () {
+                    var rowData = $(this).data(selectedValue).toString().toLowerCase();
+                    if (rowData.includes(filterValue)) {
+                        $(this).show();
                     } else {
-                        // Xử lý trường hợp rowData là undefined
-                        console.error("Không tìm thấy giá trị cho thuộc tính được chọn.");
+                        $(this).hide();
                     }
                 });
-                }
-
-               
             });
         });
 
@@ -1045,7 +1023,7 @@
             } else if (selectedValue === "thang") {
                 // Nếu là bộ lọc theo tháng, thêm input type month
                 var input = $("<input>").attr({
-                    type: "month",
+                    type: "date",
                     placeholder: "Chọn tháng...",
                 }).css({
                     width: "100%",
@@ -1053,23 +1031,24 @@
                     border: "2px solid",
                 });
                 filter2.append(input);
-            } 
-               
+            }
+
             else {
                 var select = $("<select>").css({
                     width: "100%",
                     padding: "5px 10px",
                 });
                 switch (selectedValue) {
-                    case "khoa":
-                        var dataForFilter2 = ["Đang diễn ra", "Sắp diễn ra"];
-                        break;
+                  
                     case "diem":
-                        var dataForFilter2 = ["5", "10","15","20"];
+                        var dataForFilter2 = ["5", "10", "15", "20"];
                         break;
-                    
-                }
+                    case "thoigian":       
+                      var  dataForFilter2 = ["Đang diễn ra ","Sắp diễn ra "];
+                        break;
 
+                }
+                console.log(dataForFilter2);
                 for (var i = 0; i < dataForFilter2.length; i++) {
                     var option = $("<option>").attr({
                         value: dataForFilter2[i],
@@ -1081,23 +1060,206 @@
             }
         }
 
-      
+
     }
 
-    function hoat_user(name,pass) {
-        $.post(api,
-            {
-                action: 'hoatdong_user',
-                name: name,
-                pass: pass
-            },
-            function (data) {
-                //alert(data)
-                console.log("Raw JSON data:", data);
+    function duyethoatdong(mahd) {
+        var content = `<div id="ds_sinh_vien">loading...</div>`;
+        
+        var dialog_edit = $.confirm({
+            title: 'Duyệt hoạt động sinh viên đăng kí  ',
+            content: content,
+            columnClass: 'extra-large',
+            buttons: {
+                save: {
+                    text: 'Duyệt ',
+                    btnClass: 'btn btn-outline-danger',
+                    action: function () {
+                        var data_gui = {
+                            action: 'duyethd',
+                            mahd1: mahd
+                        }
 
-                var json = JSON.parse(data);
-                capnhat_hd(json, name, pass);
-            });
+                        $.post(api, data_gui, function (data) {
+                            var json = JSON.parse(data);
+                            if (json.ok) {
+                                $.alert(json.msg);
+                            } else {
+                                alert(json.msg)
+                            }
+                        })
+                    }
+                },
+                close: {
+                    text: 'Trở về  ',
+                    btnClass: 'btn btn-outline-info'
+                },
+            } ,
+            onContentReady: function () {
+                    $.post(api,
+                        {
+                            action: 'hoatdongdk',
+                            mahd1: mahd
+                        },
+                        function (data) {
+                            console.log(data);
+                            var json = JSON.parse(data);
+                            var noidung_ds_cty_html = "";
+                            console.log(json);
+                            if (json.ok) {
+                              
+                 noidung_ds_cty_html += `<table class="table table-striped table-responsive">
+              <thead class="table table-dark">
+              <tr>
+              <th >STT</th>
+               <th >Họ tên sinh viên </th>
+                  <th >Mã số sinh viên  </th>
+                <th >Mã hoạt động </th>        
+                <th style="width: 20%;">Tên hoạt động </th>
+                 <th style="width: 24%;">Thời gian đăng kí </th>
+                <th >Điểm </th>
+              </tr>
+              </thead><tbody>`;
+                                var Stt = 1;
+                                //duyet json -> noidung_ds_cty_html xịn
+                                for (var hd of json.data) {
+                                    noidung_ds_cty_html += `
+                <tr>
+                 <td>${Stt++}</td>
+                <td>${hd.hoten}</td>
+                <td>${hd.mssv}</td>
+                <td>${hd.mahd}</td>
+                <td>${hd.ten}</td>
+                 <td>${hd.tgdk}</td>
+                <td>${hd.diem}</td>
+              </tr>`;
+                                }
+                                noidung_ds_cty_html += "</tbody></table>";
+                            } else {
+
+                                noidung_ds_cty_html = "không có dữ liệu";
+                            }
+                            $('#ds_sinh_vien').html(noidung_ds_cty_html);
+                           
+
+                        }
+                    )
+
+                }
+        })
+    }
+
+    function xacnhan(mahd) {
+        var content = `<div id="ds_sinh_vien">loading...</div>`;
+
+        var dialog_edit = $.confirm({
+            title: 'Duyệt hoạt động sinh viên đăng kí  ',
+            content: content,
+            columnClass: 'max-large',
+            buttons: {
+                save: {
+                    text: 'Cộng điểm ',
+                    btnClass: 'btn btn-outline-danger',
+                    action: function () {
+
+                        var selectedCheckboxes = $('#ds_sinh_vien input[type="checkbox"]:checked');
+                        if (selectedCheckboxes.length > 0) {
+                            // Thực hiện các bước cần thiết với các checkbox đã chọn
+                            selectedCheckboxes.each(function () {
+                                // Lấy thông tin hoặt động từ hàng chứa checkbox
+                                var row = $(this).closest('tr');
+                                var hoten = row.find('td:eq(1)').text();
+                                var mssv = row.find('td:eq(2)').text();
+                                var mahd = row.find('td:eq(3)').text();
+
+                                var data_gui = {
+                                    action: 'congdiem',
+                                    mahd1: mahd,
+                                    mssv: mssv
+                                }
+                                console.log(data_gui);
+                                $.post(api, data_gui, function (data) {
+                                    var json;
+                                    try {
+                                        json = JSON.parse(data);
+                                        console.log(json);
+                                    } catch (error) {
+                                        console.error("Error parsing JSON:", error);
+                                        // Xử lý lỗi, có thể hiển thị một thông báo cho người dùng hoặc thực hiện các bước cần thiết khác.
+                                    }
+                                    
+                                    if (json.ok) {
+                                        $.alert(json.msg);
+                                    } else {
+                                        alert(json.msg)
+                                    }
+                                })
+
+                            });
+
+                        }
+                    },
+                   
+                }, close: {
+                        text: 'Trở về  ',
+                        btnClass: 'btn btn-outline-info'
+                    }
+            },
+                onContentReady: function () {
+                    $.post(api,
+                        {
+                            action: 'thamgiadk',
+                            mahd1: mahd
+                        },
+                        function (data) {
+                            console.log(data);
+                            var json = JSON.parse(data);
+                            var noidung_ds_cty_html = "";
+                            console.log(json);
+                            if (json.ok) {
+
+                                noidung_ds_cty_html += `<table class="table table-striped table-responsive">
+              <thead class="table table-dark">
+              <tr>
+              <th >STT</th>
+               <th >Họ tên sinh viên </th>
+                  <th >Mã số sinh viên  </th>
+                <th >Mã hoạt động </th>        
+                <th style="width: 20%;">Tên hoạt động </th>
+                <th style="width: 24%;">Thời gian tham gia </th>
+                <th >Điểm </th>
+                 <th >Sinh viên hoàn thành </th>
+              </tr>
+              </thead><tbody>`;
+                                var Stt = 1;
+                                //duyet json -> noidung_ds_cty_html xịn
+                                for (var hd of json.data) {
+                                    var check = `    <input type="checkbox" name="" id="">`;
+                                    noidung_ds_cty_html += `
+                <tr>
+                 <td>${Stt++}</td>
+                <td>${hd.hoten}</td>
+                <td>${hd.mssv}</td>
+                <td>${hd.mahd}</td>
+                <td>${hd.ten}</td>
+                <td>${hd.tgtham}</td>
+                <td>${hd.diem}</td>
+                <td>${check}</td>
+              </tr>`;
+                                }
+                                noidung_ds_cty_html += "</tbody></table>";
+                            } else {
+
+                                noidung_ds_cty_html = "không có dữ liệu";
+                            }
+                            $('#ds_sinh_vien').html(noidung_ds_cty_html);
+
+
+                        }
+                    )
+
+                }
+            })
     }
  
     function dkhoatdong(mahd, user, password ){
@@ -1127,7 +1289,7 @@
                             var json = JSON.parse(data);
                             console.log(data);
                             if (json.ok) {
-                              
+                                $.alert(json.msg);
                             } else {
                                 alert(json.msg)
                             }
@@ -1142,7 +1304,7 @@
 
     function huyhoatdong(mahd, user, password) {
         var dialog_edit = $.confirm({
-
+            title: "Hủy đăng kí hoạt động này ",
             content : 'Bạn có muốn hủy đăng kí hoạt động này không ?',
             buttons: {
                 save: {
@@ -1166,7 +1328,7 @@
                             var json = JSON.parse(data);
                             console.log(data);
                             if (json.ok) {
-
+                                $.alert(json.msg);
                             } else {
                                 alert(json.msg)
                             }
@@ -1188,7 +1350,7 @@
             name: name,
             pass: pass
         }
-        
+        console.log(data_gui);
         $.post(api, data_gui, function (data) { 
             var json = JSON.parse(data);
             console.log(json);
@@ -1212,19 +1374,22 @@
                 <p>Lớp: ${sv.lop}</p>
                 <p>Khoa: ${sv.khoa}</p>
                 <button id = "btn_sua" class="btn btn-warning">Sua</button>
-                <br>
+                <button class="btn btn-success "  data-mssv="${sv.MSSV}" data-action="list_hoatdong"> <i class="fa-solid fa-file-export"></i> Hoạt động  </button>
             ` ;
             }
         }
         else { noi_dung = "khong co du lieu" }
 
         $('#ds_sinhvien').html(noi_dung);
-           
+        $('#ds_sinhvien button[data-action="list_hoatdong"]').click(function () {
+            var mssv = $(this).data('mssv');
+            list_hoatdong(mssv);
+        });
         $('#btn_sua').click(function () {
             var id = `${sv.MSSV}`;
             user_sua(id, json);
           
-        });
+        })
         
     }
 
@@ -1278,8 +1443,8 @@
             }
         })
     }
-   
-     list_hoat();
+
+    list_hoat();
     $('#btn-login').click(function () {
         list_login();
     });

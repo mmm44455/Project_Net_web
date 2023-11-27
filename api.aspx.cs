@@ -82,23 +82,25 @@ namespace QLNK_NET
         {
             SqlServer db = new SqlServer();
             SqlCommand hd = db.GetCmd("Laydiemngoaikhoa", action);
-            hd.Parameters.Add("@MSSV", SqlDbType.NVarChar, 50).Value = Request["mssv"];
+            switch (action)
+            {
+                case "list_ngoaikhoa":
+                case "list_tong":
+                case "list_luudiem":
+                    hd.Parameters.Add("@MSSV", SqlDbType.NVarChar, 50).Value = Request["mssv"];
+                    break;
+                case "list_search":
+                    hd.Parameters.Add("@MSSV", SqlDbType.NVarChar, 50).Value = Request["mssv"];
+                    hd.Parameters.Add("@ngayquet1", SqlDbType.NVarChar, 50).Value = Request["ngay1"];
+                    hd.Parameters.Add("@ngayquet2", SqlDbType.NVarChar, 50).Value = Request["ngay2"];
+                    break;
+            }
+           
             string json = (string)db.Scalar(hd); //thuc thi SqlCommand cm này để thu về jsonhd
             Response.Write(json);
         }
 
-        //Lay tong diem da quat theo ngay tu data base co proceduce la Laydiemngoaikhoa co action = list_ngayquet
-        void xuly_ngay(string action)
-        {
-            SqlServer db = new SqlServer();
-            SqlCommand hd = db.GetCmd("Laydiemngoaikhoa", action);
-            hd.Parameters.Add("@ngayquet1 ", SqlDbType.NVarChar, 50).Value = Request["ngay1"];
-            hd.Parameters.Add("@ngayquet2 ", SqlDbType.NVarChar, 50).Value = Request["ngay2"];
-            hd.Parameters.Add("@MSSV", SqlDbType.NVarChar, 50).Value = Request["mssv"];
-
-            string json = (string)db.Scalar(hd); //thuc thi SqlCommand cm này để thu về jsonhd
-            Response.Write(json);
-        }
+     
 
         //Danh sach hoat dong
         void Xulyhoatdong(string action)
@@ -108,10 +110,6 @@ namespace QLNK_NET
             switch (action)
             {
                 
-                case "search_hd":
-                cm.Parameters.Add("@search ", SqlDbType.NVarChar, 50).Value = Request["search"];
-                    break;
-
                 case "themhoatdong":
                     cm.Parameters.Add("@mahd", SqlDbType.NVarChar, 30).Value = Request["mahd"];
                     cm.Parameters.Add("@tenhd", SqlDbType.NVarChar, 50).Value = Request["tenhd"];
@@ -147,24 +145,6 @@ namespace QLNK_NET
 
         }
 
-        void list_dangki(string action)
-        {
-            SqlServer db = new SqlServer();
-            SqlCommand cm = db.GetCmd("Dangkingoaikhoa", action);
-            string json = (string)db.Scalar(cm); //thuc thi SqlCommand cm này để thu về jsonhd
-            Response.Write(json);
-        }
-
-
-        void bao_luu(string action)
-        {
-            SqlServer db = new SqlServer();
-            SqlCommand hd = db.GetCmd("Danhsachbaoluu", action);
-            string json = (string)db.Scalar(hd); //thuc thi SqlCommand cm này để thu về jsonhd
-            Response.Write(json);
-        }
-
-     
 
         void Dangnhap(string action)
         {
@@ -187,22 +167,22 @@ namespace QLNK_NET
                     cm.Parameters.Add("@user", SqlDbType.NVarChar, 50).Value = Request["name"];
                     cm.Parameters.Add("@pass", SqlDbType.NVarChar, 30).Value = Request["pass"];
                     break;
+                case "hoatdongdk":
+                case "thamgiadk":
+                
+                case "duyethd":
+                    cm.Parameters.Add("@MaHD", SqlDbType.NVarChar, 30).Value = Request["mahd1"];
+                    break;
+                case "congdiem":
+                    cm.Parameters.Add("@MaHD", SqlDbType.NVarChar, 30).Value = Request["mahd1"];
+                    cm.Parameters.Add("@MSSV", SqlDbType.NVarChar, 30).Value = Request["mssv"];
+                    break;
             }
             string json = (string)db.Scalar(cm).ToString(); //thuc thi SqlCommand cm này để thu về jsonhd
             Console.WriteLine("Result: " + json);
             Response.Write(json);
         }
 
-
-        void search_sv(string action)
-        {
-            SqlServer db = new SqlServer();
-            SqlCommand cm = db.GetCmd("Thongtinsv", action);
-            cm.Parameters.Add("@search", SqlDbType.NVarChar, 30).Value = Request["search"];
-            string json = (string)db.Scalar(cm); //thuc thi SqlCommand cm này để thu về jsonhd
-            Response.Write(json);
-
-        }
         protected void Page_Load(object sender, EventArgs e)
         {
             string action = Request["action"];
@@ -221,45 +201,40 @@ namespace QLNK_NET
                     break;
                 // Xuat hoat dong ngoai khoa da dang ki va da quet
                 case "list_ngoaikhoa":
+                case "list_tong":
+                case "list_luudiem":
+                case "list_search":
                     xuly_thamgia(action);
                         break;
-                // TInh tong diem theo ngay 
-                case "list_ngayquet":
-                    xuly_ngay(action);
-                    break;
+
+           
                 //Danh sach hoat dong
-                case "list_hoatdong":
-                case "search_hd":
+                case "list_hd":
                 case "themhoatdong":
                 case "update_hd":
                     Xulyhoatdong(action); 
                     break;
+
+
                 // update Mssv
                 case "update_mssv":
                     update_ms(action); 
                     break;
 
-                //Danh sach dang ki ngoai khoa
-                case "dangki":
-                    list_dangki(action);
-                    break;
-
-                case "baoluu":
-                    bao_luu(action);
-                    break;
-
-           
+          
                 case "login":
                 case "user_sv":
                 case "dangkihd":
                 case "hoatdong_user":
                 case "delete_user":
+                case "hoatdongdk":
+                case "duyethd":
+                case "thamgiadk":
+                case "congdiem":
                     Dangnhap(action);
                     break;
 
-                case "search_sv":
-                    search_sv(action);
-                        break;
+               
             }
         }
     }
