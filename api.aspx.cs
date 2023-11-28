@@ -123,7 +123,10 @@ namespace QLNK_NET
                     break;
                 case "update_hd":
                     cm.Parameters.Add("@tenhd", SqlDbType.NVarChar, 50).Value = Request["tenhd"];
-                   
+                    break;
+                case "list_hd":
+                    cm.Parameters.Add("@user", SqlDbType.NVarChar, 50).Value = Request["name"];
+                    cm.Parameters.Add("@pass", SqlDbType.NVarChar, 30).Value = Request["pass"];
                     break;
             }
         

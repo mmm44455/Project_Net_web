@@ -648,6 +648,8 @@
                     if (json.role === 2) {
                         list_hoat();
                         $('#btn-hd').show();
+                        isAddHdVisible = true;
+                        list_hoat(name, pass);
                         $('#btn-hd').click(function () {
                             isAddHdVisible = true;
                             list_hoat(name, pass);
@@ -662,6 +664,7 @@
                         list_hoat();
                         $('#btn-sv').show();
                         $('#btn-hd').show();
+                        list_hoat(name, pass);
                         $('#btn-hd').click(function () {
                             list_hoat(name, pass);
                         })
@@ -836,7 +839,9 @@
     function list_hoat(name, pass) {
         $.post(api,
             {
-                action: 'list_hd'
+                action: 'list_hd',
+                name: name,
+                pass:pass
             },
             function (data) {
                 //alert(data)
@@ -975,11 +980,20 @@
             console.log(name1, pass1)
             //duyet json -> noidung_ds_cty_html xịn
             for (var sv of json.data) {
-
+                var status = sv.trangthaihoatdong.toLowerCase();
      
-                var sua = 
-                `<button class="btn btn-outline-danger nut_xoa_sua dkhd"  
-                data-id="${sv.mahd}" data-name="${name1}" data-pass="${pass1}" data-loai="dkhoatdong" style="margin-right:10px;"> <i class="fa-solid fa-pen"></i>Đăng kí hoạt động</button>`;
+                var sua = '';
+
+                if (status === 'chưa đăng ký') {
+                    sua += `<button class="btn btn-success nut_xoa_sua dkhd"  
+                data-id="${sv.mahd}" data-name="${name1}" data-pass="${pass1}" data-loai="dkhoatdong" style="margin-right:10px;display:none;"> Đăng kí hoạt động</button>`;
+                } else if (status === 'Huỷ đăng kí') {
+                    sua += `<button class="btn btn-danger nut_xoa_sua huyhd"  
+                data-id="${sv.mahd}" data-name="${name1}" data-pass="${pass1}" data-loai="huyhoatdong" style="margin-right:10px; display:none;"> Hủy đăng kí </button>`;
+                } else if (status === 'Duyệt tham gia') {
+                 sua += `<button class="btn btn-warning nut_xoa_sua thamchieu"  
+                data-id="${sv.mahd}" data-name="${name1}" data-pass="${pass1}" data-loai="doichieu" style="margin-right:10px; display:none;"> Tham gia </button>`;
+                }
                 sua += `<button class="btn btn-outline-danger  duyethd"  
                 data-id="${sv.mahd}" data-name="${name1}" data-pass="${pass1}" data-loai="dkhoatdong" style="margin-right:10px;"> <i class="fa-solid fa-pen"></i>Duyệt hoạt động</button>`;
                 sua += `<button class="btn btn-outline-success  xacnhan"  
@@ -1030,14 +1044,17 @@
                 var mahd = $(this).data('id');
                 var user = $(this).data('name');
                 var password = $(this).data('pass');
+                var mahd = $(this).data('id');
+          
 
                 if (action == 'dkhoatdong') {
                     dkhoatdong(mahd, user, password);
-                    localStorage.setItem('dangky_' + mahd, 'true');
-                    $(this).text('Hủy đăng ký').data('loai', 'huyhoatdong');
+                    $(this).hide(); // Ẩn nút đăng ký
+                    $(this).siblings('.huyhd').show();
                 } else if (action == 'huyhoatdong') {
                     huyhoatdong(mahd, user, password);
-                    $(this).html('<i class="fa-solid fa-pen"></i> Đăng ký hoạt động').data('loai', 'dkhoatdong');
+                    $(this).hide(); // Ẩn nút hủy đăng ký
+                    $(this).siblings('.dkhd').show();
                 }
 
             })
@@ -1501,7 +1518,6 @@
                 <p>Tình trạng: ${tinhtrangChuoi}</p>
                 <p>Lớp: ${sv.lop}</p>
                 <p>Khoa: ${sv.khoa}</p>
-                <button id = "btn_sua" class="btn btn-warning">Sua</button>
                 <button class="btn btn-success "  data-mssv="${sv.MSSV}" data-action="list_hoatdong"> <i class="fa-solid fa-file-export"></i> Hoạt động  </button>
                         </div>
                 </div>
@@ -1516,11 +1532,7 @@
             var mssv = $(this).data('mssv');
             list_hoatdong(mssv);
         });
-        $('#btn_sua').click(function () {
-            var id = `${sv.MSSV}`;
-            user_sua(id, json);
-          
-        })
+      
         $('.daidien').css({
             'display': 'flex',
             'flex- direction': 'row',
@@ -1571,58 +1583,7 @@
         }
     }
 
-    function user_sua(id, json) {
-        var sv;
-        for (var item of json.data) {
-
-            if (item.MSSV == id) {
-                sv = item;
-                console.log(sv);
-                break;
-            }
-        }
-
-        var content = `NAME: <input type=text id="edit-name" value="${sv.hoten}" style="margin-bottom:10px; padding:4px; wigth:100%;"> <br>
-                        ADDRESS: <input type=text id="edit-address" value="${sv.diachi}" style="margin-bottom:10px; padding:4px; wigth:100%;"><br>
-                         DATE : <input type=date id="edit-ngay" value="${sv.ngaysinh}" style="margin-bottom:10px; padding:4px; wigth:100%;"><br>`
-                         
-        var dialog_edit = $.confirm({
-            title: 'Sửa thông tin  sinh vien ',
-            content: content,
-
-            buttons: {
-                save: {
-                    text: 'Lưu thông tin',
-                    btnClass: 'btn btn-outline-danger',
-                    action: function () {
-                        var data_gui = {
-                            action: 'userupdate_sv',
-                            id: id,
-                            hoten: $('#edit-name').val(),
-                            diachi: $('#edit-address').val(),
-                            ngaysinh: $('#edit-ngay').val()
-                        }
-
-                        $.post(api, data_gui, function (data) {
-                            var json = JSON.parse(data);
-                            console.log(json);
-                            if (json.ok) {
-                                alert("ban da sua thanh cong");
-                            } else {
-                                alert(json.msg)
-                            }
-                        })
-                    }
-                },
-
-                close: {
-
-                }
-            }
-        })
-    }
-
-    list_hoat();
+  
     $('#btn-login').click(function () {
         list_login();
     });
