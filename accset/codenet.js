@@ -638,7 +638,7 @@
             $.post(api, data_gui_di, function (data) {
 
                 var json = JSON.parse(data);
-
+               
                 if (json.ok) {
                     console.log(data);
 
@@ -668,6 +668,10 @@
                         $('#btn-sv').click(function () {
                             userSV(name, pass);
                         })
+
+                        $('#username').click(function () {
+                            thongtinlogin(name,pass);
+                        });
                     }
                     $('#btn-login').hide();
                     $('#nameid').show();
@@ -682,6 +686,65 @@
         }
     }
 
+    /*    thong tin dang nhap cua sinh vien*/
+    function thongtinlogin(name, pass) {
+        var data_gui = {
+            action: 'user_sv',
+            name: name,
+            pass: pass
+        }
+        $.post(api, data_gui, function (data) {
+            var json = JSON.parse(data);
+            if (json.ok) {
+                for (var sv of json.data) {
+                    var mssv = sv.MSSV;
+                  var dialog_list_company = $.confirm({
+              title: " THÔNG TIN TÀI KHOẢN SINH VIÊN CỦA BẠN",
+              class: 'confirm-login',
+              content:
+               ` <div class="thongtin" style=" padding: 0 10px" ;>
+                   Mã số sinh viên :   <input type="text" value=" ${sv.MSSV} " readonly class="custom-input" ><br>
+                   Họ tên:  <input type="text" value=" ${sv.hoten}" class="custom-input"  readonly><br>
+                   Tên đăng nhập  :   <input type="text" value="${sv.user}"  class="custom-input" id="nameuser"><br>
+                   Mật khẩu đăng nhập :<input type="pass" value="${sv.pass}"  class="custom-input" id="pass"><br>
+                        </div >`,
+                  columnClass: 'lagre',
+             buttons: {
+                search: {
+                    text: 'Sửa thông tin ',
+                    btnClass: 'btn-info',
+                    action: function () {
+                        var data_sua = {
+                            action: 'update_login',
+                            name: $('#nameuser').val().trim(),
+                            pass: $('#pass').val().trim(),
+                            mssv: mssv
+                        }
+                        $.post(api, data_sua, function (data) {
+                            var json = JSON.parse(data);
+                            if (json.ok) {
+                                alert("Da sua thanh cong");
+                            } else {
+                                $.alert(json.msg);
+                            }
+                        })
+                    }
+
+                },
+                canel: {
+                    text: 'Trở về màn hình chính  ',
+                    btnClass: 'btn-danger',
+                    
+                }
+
+            },
+
+        });
+                }
+            }
+        })
+      
+    }
     /*Login trang web*/
     function list_login() {
         var dialog_list_company = $.confirm({
@@ -689,8 +752,8 @@
             class: 'confirm-login',
             content:
                 `Username <i class="fa-solid fa-user" class = "icon-fa" style="color: #27ecab;"></i> ` + `<input type="text" id="name" class="custom-input"/>` + `<br>` +
-                `Password <i class="fa-solid fa-lock" class = "icon-fa" style="color: #1ecc92;"></i>` + `<input type="password" id="pass" class="custom-input"/>`,
-            columnClass: 'small',
+                `Password <i class="fa-solid fa-lock" class = "icon-fa" style="color: #1ecc92;"></i>` + `<input type="pass" id="pass" class="custom-input"/>`,
+            columnClass: 'lagre',
             buttons: {
                 search: {
                     text: 'Đăng nhập',
@@ -703,7 +766,10 @@
                 },
                 canel: {
                     text: 'Đăng Kí ',
-                    btnClass: 'btn-danger'
+                    btnClass: 'btn-danger',
+                    action: function () {
+                        dangki();
+                    }
                 },
 
             },
@@ -715,6 +781,56 @@
 
     }
 
+    /*    dang ki tai khoan sinh vien*/
+    function dangki() {
+        var data_gui = {
+
+        }
+        var dialog_list_company = $.confirm({
+            title: " ĐĂNG KÍ TÀI KHOẢN ",
+            class: 'confirm-login',
+            content:
+                `MSSV <i class="fa-solid fa-code-fork" class = "icon-fa" style="color: #1ecc92;"></i>` + `<input type="text" id="mssv" class="custom-input"/>` + `<br>` +
+                `Username <i class="fa-solid fa-user" class = "icon-fa" style="color: #27ecab;"></i> ` + `<input type="text" id="name" class="custom-input"/>` + `<br>` +
+                `Password <i class="fa-solid fa-lock" class = "icon-fa" style="color: #1ecc92;"></i>` + `<input type="password" id="pass" class="custom-input"/>`,
+            columnClass: 'lagre',
+            buttons: {
+                canel: {
+                    text: 'Đăng Kí ',
+                    btnClass: 'btn-danger',
+                    action: function () {
+                        var name = $('#name').val();
+                        var pass = $('#pass').val();
+                        var mssv = $('#mssv').val();
+                        var data_gui = {
+                            action: 'dangki',
+                            name: name,
+                            pass: pass,
+                            mssv : mssv
+                        }
+                        $.post(api, data_gui, function (data) {
+                            var json = JSON.parse(data);
+                            if (json.ok) {
+                                list_login();
+                            } else {
+                                $.alert(json.msg);
+                            }
+                        })
+                    }
+                },
+                close: {
+                    text: 'Trở về ',
+                    btnClass: 'btn btn-success',
+                    onContentReady: function () {
+                        list_login();
+                    }
+                }
+
+            }
+           
+
+        });
+    }
 
     /* danh sach hoat dong*/
     function list_hoat(name, pass) {
@@ -1265,8 +1381,7 @@
     function dkhoatdong(mahd, user, password ){
         var dialog_edit = $.confirm({
             title: 'Dang ki hoat dong ',
-          
-
+            content:`Bạn muốn đăng kí hoạt động này à `,
             buttons: {
                 save: {
                     text: 'Lưu thông tin',
@@ -1367,7 +1482,20 @@
             for (var sv of json.data) {
                 var tinhtrangChuoi = sv.tinhtrang == 1 ? "không học nữa " : "Đang theo học";
                 noi_dung += `
-                 <p>Họ tên: ${sv.hoten}</p>
+                <div class="daidien"  style = "gap : 20px;">
+                <div class = "image_giaodien" style = " width: 30%;display: flex;flex-direction: column;border-radius: 10px">
+                      <img id="previewImage"  style = " width: 100%;height:90%;    border-radius: 20px;" alt="Preview">
+                         <label for="fileInput" style = " padding: 10px;
+                          background-color: #3498db;
+                          width: 40%;
+                      color: white;
+            border-radius: 20px;
+                     text-align: center;
+            cursor: pointer;">Chọn ảnh</label>
+                    <input type="file" id="fileInput" accept="image/*">
+                </div>
+                        <div class = "thongtin"   style=" padding: 0 10px" ;>
+                        <p>Họ tên: ${sv.hoten}</p>
                 <p>Địa chỉ: ${sv.diachi}</p>
                 <p>Ngày sinh: ${sv.ngaysinh}</p>
                 <p>Tình trạng: ${tinhtrangChuoi}</p>
@@ -1375,6 +1503,9 @@
                 <p>Khoa: ${sv.khoa}</p>
                 <button id = "btn_sua" class="btn btn-warning">Sua</button>
                 <button class="btn btn-success "  data-mssv="${sv.MSSV}" data-action="list_hoatdong"> <i class="fa-solid fa-file-export"></i> Hoạt động  </button>
+                        </div>
+                </div>
+                 
             ` ;
             }
         }
@@ -1390,7 +1521,54 @@
             user_sua(id, json);
           
         })
-        
+        $('.daidien').css({
+            'display': 'flex',
+            'flex- direction': 'row',
+           
+        });
+        $('.thongtin').css({
+            'width': '70%'
+
+        });
+        $('#fileInput').css({
+            'display': 'none',
+        })   
+     
+
+       $('#previewImage').css( {
+            'max - width': '300px',
+            'max - height': '300px',
+            'margin - top': '20px',
+            'display':' none',
+           'display': 'flex',
+            'flex - direction': 'row',
+       })
+
+        document.getElementById('fileInput').addEventListener('change', function () {
+            var fileInput = document.getElementById('fileInput');
+            var previewImage = document.getElementById('previewImage');
+
+            var file = fileInput.files[0];
+            if (file) {
+                // Hiển thị hình ảnh trước khi tải lên
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    previewImage.src = e.target.result;
+                    previewImage.style.display = 'block';
+
+                    // Lưu trữ hình ảnh trong localStorage
+                    localStorage.setItem('uploadedImage', e.target.result);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Kiểm tra nếu có hình ảnh được lưu trữ trong localStorage
+        var storedImage = localStorage.getItem('uploadedImage');
+        if (storedImage) {
+            document.getElementById('previewImage').src = storedImage;
+            document.getElementById('previewImage').style.display = 'block';
+        }
     }
 
     function user_sua(id, json) {
@@ -1449,7 +1627,6 @@
         list_login();
     });
   
-
     $('#btn-logout').click(function () {
      
         // Ẩn hoặc hiển thị các phần tử tùy thuộc vào trạng thái đăng nhập

@@ -3,8 +3,8 @@
     padding:0;
     box-sizing:border-box;
 }
-html {
-    font-family: "Raleway", sans-serif;
+body{
+    font-family: Georgia, 'Times New Roman', Times, serif;
 }
 .header-slider-container {
     position: relative;
@@ -166,4 +166,20 @@ img {
 .student-details {
     text-align: left;
 }
+/* Thêm CSS để căn giữa tiêu đề và tùy chỉnh kiểu chữ */
 
+.jconfirm-title-c {
+    text-align : center;
+}
+.jconfirm-box-container{
+ border-radius: 15px;
+}
+.jconfirm-box {
+    font-family: Georgia, 'Times New Roman', Times, serif;
+
+}
+.jconfirm-button{
+    width:100%;
+    display:flex;
+    justify-content:space-between;
+}

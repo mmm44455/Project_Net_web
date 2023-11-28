@@ -159,11 +159,13 @@ namespace QLNK_NET
                     break;
                 case "dangkihd":
                 case "delete_user":
+                 
                     cm.Parameters.Add("@user", SqlDbType.NVarChar, 50).Value = Request["name"];
                     cm.Parameters.Add("@pass", SqlDbType.NVarChar, 30).Value = Request["pass"];
                     cm.Parameters.Add("@MaHD", SqlDbType.NVarChar, 30).Value = Request["mahd1"];
                     break;
                 case "hoatdong_user":
+            
                     cm.Parameters.Add("@user", SqlDbType.NVarChar, 50).Value = Request["name"];
                     cm.Parameters.Add("@pass", SqlDbType.NVarChar, 30).Value = Request["pass"];
                     break;
@@ -177,6 +179,13 @@ namespace QLNK_NET
                     cm.Parameters.Add("@MaHD", SqlDbType.NVarChar, 30).Value = Request["mahd1"];
                     cm.Parameters.Add("@MSSV", SqlDbType.NVarChar, 30).Value = Request["mssv"];
                     break;
+                case "dangki":
+                 case "update_login":
+                    cm.Parameters.Add("@user", SqlDbType.NVarChar, 50).Value = Request["name"];
+                    cm.Parameters.Add("@pass", SqlDbType.NVarChar, 30).Value = Request["pass"];
+                    cm.Parameters.Add("@MSSV", SqlDbType.NVarChar, 30).Value = Request["mssv"];
+                    break;
+      
             }
             string json = (string)db.Scalar(cm).ToString(); //thuc thi SqlCommand cm này để thu về jsonhd
             Console.WriteLine("Result: " + json);
@@ -231,6 +240,8 @@ namespace QLNK_NET
                 case "duyethd":
                 case "thamgiadk":
                 case "congdiem":
+                case "dangki":
+                case "update_login":
                     Dangnhap(action);
                     break;
 
