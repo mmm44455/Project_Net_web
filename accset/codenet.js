@@ -40,7 +40,7 @@
 
 
                             } else {
-                                alert(json.msg);
+                                $.alert(json.msg);
 
                             }
                         });
@@ -66,7 +66,7 @@
             title: "Danh sach hoat dong",
             content: `<div id="ds_sinh_vien">loading...</div>` +
                 `<div id="tongdiem">loading....</div>`,
-            columnClass: 'large',
+            columnClass: 'large-extra',
             buttons: {
                 search: {
                     text: '<i class="fa-solid fa-magnifying-glass"></i> Tìm kiếm ',
@@ -620,6 +620,7 @@
 
     }
 
+    /*phan quyen hoat dong*/
     var role = " ";
     function check_login() {
         var name = $('#name').val();
@@ -706,8 +707,8 @@
               class: 'confirm-login',
               content:
                ` <div class="thongtin" style=" padding: 0 10px" ;>
-                   Mã số sinh viên :   <input type="text" value=" ${sv.MSSV} " readonly class="custom-input" ><br>
-                   Họ tên:  <input type="text" value=" ${sv.hoten}" class="custom-input"  readonly><br>
+                   Mã số sinh viên :   <input type="text" value=" ${sv.MSSV} " readonly class="custom-input" style = "background-color:	#C0C0C0;"><br>
+                   Họ tên:  <input type="text" value=" ${sv.hoten}" class="custom-input"  style = "background-color:#C0C0C0;" readonly><br>
                    Tên đăng nhập  :   <input type="text" value="${sv.user}"  class="custom-input" id="nameuser"><br>
                    Mật khẩu đăng nhập :<input type="pass" value="${sv.pass}"  class="custom-input" id="pass"><br>
                         </div >`,
@@ -726,7 +727,7 @@
                         $.post(api, data_sua, function (data) {
                             var json = JSON.parse(data);
                             if (json.ok) {
-                                alert("Da sua thanh cong");
+                               $.alert("Đã sửa thành công thông tin tài khoản của bạn ");
                             } else {
                                 $.alert(json.msg);
                             }
@@ -835,13 +836,13 @@
         });
     }
 
-    /* danh sach hoat dong*/
+    /* danh sach hoat dong cho admin*/
     function list_hoat(name, pass) {
         $.post(api,
             {
                 action: 'list_hd',
                 name: name,
-                pass:pass
+                pass: pass
             },
             function (data) {
                 //alert(data)
@@ -852,6 +853,10 @@
             });
     }
 
+    /*   danh sach hoat dong chua dang ki*/
+  
+
+    //them 1 hoat dong admin moi them duoc
     function themhoatdong() {
         var content =
             `
@@ -961,6 +966,7 @@
         if (json.ok) {
             noidung_ds_cty_html += `
              <button class="btn btn-outline-info add_hd " data-action="them_hd" style="margin-bottom:10px;"><i class="fa-solid fa-plus"></i> Tạo hoạt động </button><br>
+              <button class="btn btn-outline-success restart" data-action="list_hoat" style="margin-bottom:10px;"><i class="fa-solid fa-rotate-right"></i> Reratrt</button><br>
              <select id="filter1"  style="padding: 5px ; width: 45%;border-radius:15px;margin-bottom:10px;">
     <option value="ten">Tên</option>
     <option value="thoigian">Thời gian diễn ra </option>
@@ -980,20 +986,25 @@
             console.log(name1, pass1)
             //duyet json -> noidung_ds_cty_html xịn
             for (var sv of json.data) {
-                var status = sv.trangthaihoatdong.toLowerCase();
-     
+                var trangthai = sv.hddk;
+                console.log(trangthai);
                 var sua = '';
-
-                if (status === 'chưa đăng ký') {
-                    sua += `<button class="btn btn-success nut_xoa_sua dkhd"  
-                data-id="${sv.mahd}" data-name="${name1}" data-pass="${pass1}" data-loai="dkhoatdong" style="margin-right:10px;display:none;"> Đăng kí hoạt động</button>`;
-                } else if (status === 'Huỷ đăng kí') {
-                    sua += `<button class="btn btn-danger nut_xoa_sua huyhd"  
-                data-id="${sv.mahd}" data-name="${name1}" data-pass="${pass1}" data-loai="huyhoatdong" style="margin-right:10px; display:none;"> Hủy đăng kí </button>`;
-                } else if (status === 'Duyệt tham gia') {
-                 sua += `<button class="btn btn-warning nut_xoa_sua thamchieu"  
-                data-id="${sv.mahd}" data-name="${name1}" data-pass="${pass1}" data-loai="doichieu" style="margin-right:10px; display:none;"> Tham gia </button>`;
+                if (trangthai == 'Chưa đăng ký ') {
+                    console.log(trangthai);
+                    var sua =
+                        `<button class="btn btn-success nut_xoa_sua dkhd"  
+                data-id="${sv.mahd}" data-name="${name1}" data-pass="${pass1}" data-loai="dkhoatdong" style="margin-right:10px; display : none;"> Đăng kí hoạt động</button>`;
+                } else if (trangthai == 'Huỷ đăng kí ') {
+                    var sua = `<button class="btn btn-danger nut_xoa_sua huyhd"  
+                data-id="${sv.mahd}" data-name="${name1}" data-pass="${pass1}" data-loai="huyhoatdong" style="margin-right:10px;"> Hủy đăng kí </button>`;
+                } else if (trangthai == 'Duyệt tham gia  ') {
+                    sua += `<button class="btn btn-warning nut_xoa_sua thamchieu"  
+                data-id="${sv.mahd}" data-name="${name1}" data-pass="${pass1}" data-loai="doichieu" style="margin-right:10px;"> Tham gia </button>`;
+                } else if (trangthai == 'Cộng điểm') {
+                    sua += `<p>Đã tham gia </p>`;
                 }
+                
+               
                 sua += `<button class="btn btn-outline-danger  duyethd"  
                 data-id="${sv.mahd}" data-name="${name1}" data-pass="${pass1}" data-loai="dkhoatdong" style="margin-right:10px;"> <i class="fa-solid fa-pen"></i>Duyệt hoạt động</button>`;
                 sua += `<button class="btn btn-outline-success  xacnhan"  
@@ -1020,18 +1031,23 @@
             $('.add_hd').show();
             $('.dkhd').hide();
             $('.duyethd').show();
+
             $('.themhd').show();
             $('.xacnhan').show();
 
         } else {
             $('.add_hd').hide();
             $('.dkhd').show();
+            $('.huyhd').show();
+            $('.thamchieu').show();
             $('.themhd').hide();
             $('.duyethd').hide();
             $('.xacnhan').hide();
         }
 
-
+        $('.restart ').click(function () {
+            list_hoat();
+        })
         $('.search ').click(function () {
             search_hd();
         })
@@ -1195,7 +1211,7 @@
 
 
     }
-
+/*    duyet nhung ai dk hoat dong*/
     function duyethoatdong(mahd) {
         var content = `<div id="ds_sinh_vien">loading...</div>`;
         
@@ -1282,6 +1298,7 @@
         })
     }
 
+   /* cong diem cho nhung ai di tham gia*/
     function xacnhan(mahd) {
         var content = `<div id="ds_sinh_vien">loading...</div>`;
 
@@ -1394,7 +1411,8 @@
                 }
             })
     }
- 
+
+   /* dang ki hoat dong*/
     function dkhoatdong(mahd, user, password ){
         var dialog_edit = $.confirm({
             title: 'Dang ki hoat dong ',
@@ -1434,6 +1452,7 @@
         })
     }
 
+   /* huy dang ki hoat dong*/
     function huyhoatdong(mahd, user, password) {
         var dialog_edit = $.confirm({
             title: "Hủy đăng kí hoạt động này ",

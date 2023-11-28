@@ -113,7 +113,7 @@ namespace QLNK_NET
                 case "themhoatdong":
                     cm.Parameters.Add("@mahd", SqlDbType.NVarChar, 30).Value = Request["mahd"];
                     cm.Parameters.Add("@tenhd", SqlDbType.NVarChar, 50).Value = Request["tenhd"];
-                    cm.Parameters.Add("@diadiem", SqlDbType.NVarChar, 50).Value = Request["diadiem"];
+                    cm.Parameters.Add("@diadiem", SqlDbType.NVarChar, 50).Value = Request["diachi"];
                     cm.Parameters.Add("@soluong", SqlDbType.Int).Value = Request["soluong"];
                     cm.Parameters.Add("@diem", SqlDbType.Int).Value = Request["diem"];
                     cm.Parameters.Add("@nguoitao", SqlDbType.NVarChar, 50).Value = Request["nguoitao"];
@@ -224,6 +224,7 @@ namespace QLNK_NET
                 case "list_hd":
                 case "themhoatdong":
                 case "update_hd":
+        
                     Xulyhoatdong(action); 
                     break;
 
