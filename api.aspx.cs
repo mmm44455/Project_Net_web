@@ -87,6 +87,7 @@ namespace QLNK_NET
                 case "list_ngoaikhoa":
                 case "list_tong":
                 case "list_luudiem":
+              
                     hd.Parameters.Add("@MSSV", SqlDbType.NVarChar, 50).Value = Request["mssv"];
                     break;
                 case "list_search":
@@ -100,7 +101,14 @@ namespace QLNK_NET
             Response.Write(json);
         }
 
-     
+        void xuly_diemluu(string action)
+        {
+            SqlServer db = new SqlServer();
+            SqlCommand hd = db.GetCmd("Luudanhsach", action);
+            string json = (string)db.Scalar(hd); //thuc thi SqlCommand cm này để thu về jsonhd
+            Response.Write(json);
+        }
+
 
         //Danh sach hoat dong
         void Xulyhoatdong(string action)
@@ -216,9 +224,12 @@ namespace QLNK_NET
                 case "list_tong":
                 case "list_luudiem":
                 case "list_search":
+              
                     xuly_thamgia(action);
                         break;
-
+         case "danhsachluu":
+             xuly_diemluu(action);
+                        break;
            
                 //Danh sach hoat dong
                 case "list_hd":

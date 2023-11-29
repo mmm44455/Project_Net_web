@@ -408,6 +408,7 @@
             noidung_ds_cty_html += `
                     <button class="btn btn-outline-info add_sinhvien " data-action="list_add_sinhvien" style="margin-bottom:10px;"><i class="fa-solid fa-plus"></i> Thêm sinh viên mới</button>
                      <button class="btn btn-outline-success restart" data-action="list_add_sinhvien" style="margin-bottom:10px;"><i class="fa-solid fa-rotate-right"></i> Reratrt</button><br>
+                      <button class="btn btn-info luudiem" data-action="list_luudiem" style="margin-bottom:10px;"><i class="fa-solid fa-rotate-right"></i>Điểm được lưu</button><br>
 
 
 <select id="filter1"  style="padding: 5px ; width: 45%;border-radius:15px;margin-bottom:10px;">
@@ -449,7 +450,8 @@
                     </div>
                 </div>`;
 
-
+                var mssv = sv.MSSV;
+                luudiem(mssv);
             }
 
         } else {
@@ -462,6 +464,7 @@
             var mssv = $(this).data('mssv');
             list_hoatdong(mssv);
         });
+       
         $('.nut_xoa_sua').click(function () {
             var action = $(this).data('loai');
             var id = $(this).data('id');
@@ -476,6 +479,9 @@
 
         $('.add_sinhvien ').click(function () {
             add_sinhvien();
+        });
+        $('.luudiem ').click(function () {
+            danhsachluu();
         });
 
         $('.restart ').click(function () {
@@ -605,6 +611,93 @@
 
     }
 
+    function danhsachluu() {
+        var dialog_list_company = $.confirm({
+            title: "Danh sách điểm lưu",
+            content: `<div id="ds_sinh_vien">loading...</div>` ,
+
+            columnClass: 'large-extra',
+            buttons: {
+
+                close: {
+                    text: '<i class="fa-solid fa-xmark"></i> Đóng',
+                    btnClass: 'btn-danger',
+                },
+
+            },
+
+            onContentReady: function () {
+                $.post(api,
+                    {
+                        action: 'danhsachluu'
+
+                    },
+                    function (data) {
+                        console.log(data);
+                        var json = JSON.parse(data);
+                        var noidung_ds_cty_html = "";
+                        if (json.ok) {
+                            dialog_list_company.open();
+                            noidung_ds_cty_html += `<table class="table table-striped table-responsive">
+              <thead class="table table-dark">
+              <tr>
+              <th >STT</th>  
+                <th >Họ tên  </th>
+                 <th >Ngày sinh   </th>
+                <th >Mã số sinh viên </th>
+                 <th >Lớp </th>
+                  <th>Khoa </th>
+                <th >Tổng điểm  </th>
+           
+              </tr>
+              </thead><tbody>`;
+                            var Stt = 1;
+                            //duyet json -> noidung_ds_cty_html xịn
+                            for (var hd of json.data) {
+                                
+                                noidung_ds_cty_html += `
+                <tr >
+                 <td>${Stt++}</td>
+                <td>${hd.hoten}</td>
+                <td>${hd.ngaysinh}</td>
+                 <td>${hd.mssv}</td>
+                <td>${hd.lop}</td>
+                 <td>${hd.khoa}</td>
+                <td>${hd.diem}</td>
+              </tr>`;
+                            }
+                            noidung_ds_cty_html += "</tbody></table>";
+                        } else {
+
+                            noidung_ds_cty_html = "không có dữ liệu";
+                        }
+                        $('#ds_sinh_vien').html(noidung_ds_cty_html);
+
+                    }
+                )
+
+             
+
+            }
+
+        });
+     
+    }
+    function luudiem(mssv) {
+        var data_luu = {
+            action: "list_luudiem",
+            mssv: mssv,
+        }
+     
+        $.post(api, data_luu, function (data) {
+            var json = JSON.parse(data);   console.log(json);
+            if (json.ok) {
+                
+            } else {
+                console.log(json.msg);
+            }
+        })
+    }
     /*Danh sach sinh vien co trong database*/
     function list_sinhvien() {
         $.post(api,
@@ -969,9 +1062,7 @@
               <button class="btn btn-outline-success restart" data-action="list_hoat" style="margin-bottom:10px;"><i class="fa-solid fa-rotate-right"></i> Reratrt</button><br>
              <select id="filter1"  style="padding: 5px ; width: 45%;border-radius:15px;margin-bottom:10px;">
     <option value="ten">Tên</option>
-    <option value="thoigian">Thời gian diễn ra </option>
     <option value="diem">Điểm </option>
-     <option value="thang">Tháng</option>
     <option value="lop">Mã hoạt động </option>
 </select>
 
@@ -1368,7 +1459,8 @@
                             console.log(json);
                             if (json.ok) {
 
-                                noidung_ds_cty_html += `<table class="table table-striped table-responsive">
+                                noidung_ds_cty_html += 
+                                `<table class="table table-striped table-responsive">
               <thead class="table table-dark">
               <tr>
               <th >STT</th>
@@ -1398,17 +1490,26 @@
               </tr>`;
                                 }
                                 noidung_ds_cty_html += "</tbody></table>";
+                               
                             } else {
 
                                 noidung_ds_cty_html = "không có dữ liệu";
                             }
                             $('#ds_sinh_vien').html(noidung_ds_cty_html);
+                    $("#checkAll").change(function () {
+               
+                        var isChecked = $(this).prop("checked");
+                        console.log("Checkbox 'Chọn tất cả' đã thay đổi: " + isChecked);
 
+                        $(".checkBoxItem").prop("checked", isChecked)
+                          });
 
                         }
                     )
 
-                }
+            }
+
+            
             })
     }
 
@@ -1602,7 +1703,7 @@
         }
     }
 
-  
+    list_hoat();
     $('#btn-login').click(function () {
         list_login();
     });
